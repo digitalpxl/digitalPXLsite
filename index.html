@@ -4,744 +4,363 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Digital PXL — Game Development Studio</title>
+<meta name="description" content="Independent game development studio building pixel-perfect VR and PC games. Based in Queensland, Australia.">
 <link rel="preconnect" href="https://fonts.googleapis.com">
-<link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&family=VT323:wght@400&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800;900&family=Press+Start+2P&display=swap" rel="stylesheet">
 <style>
-:root {
-  --bg: #0a0a0a;
-  --bg2: #111111;
-  --bg3: #1a1a1a;
-  --white: #ffffff;
-  --grey1: #cccccc;
-  --grey2: #888888;
-  --grey3: #444444;
-  --grey4: #222222;
-  --accent: #ffffff;
-  --pixel: 'Press Start 2P', monospace;
-  --vt: 'VT323', monospace;
-}
-
 *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
-
 html { scroll-behavior: smooth; }
-
-body {
-  background: var(--bg);
-  color: var(--white);
-  font-family: var(--pixel);
-  font-size: 12px;
-  line-height: 1.8;
-  cursor: none;
-  overflow-x: hidden;
+:root {
+  --page-bg: #0f0f0f;
+  --surface: #191919;
+  --surface2: #222222;
+  --border: rgba(255,255,255,0.08);
+  --border2: rgba(255,255,255,0.05);
+  --white: #ffffff;
+  --black: #0f0f0f;
+  --grey1: #e8e8e8;
+  --grey2: #a0a0a0;
+  --grey3: #606060;
+  --nav-height: 72px;
+  --page-max: 1280px;
+  --font: 'Outfit', sans-serif;
+  --pixel: 'Press Start 2P', monospace;
 }
-
-/* Custom cursor */
-#cursor {
-  position: fixed;
-  width: 16px; height: 16px;
-  background: var(--white);
-  image-rendering: pixelated;
-  clip-path: polygon(0 0, 60% 40%, 30% 40%, 50% 100%, 35% 100%, 20% 50%, 0 70%);
-  pointer-events: none;
-  z-index: 9999;
-  transition: transform 0.05s;
-  mix-blend-mode: difference;
-}
-
-/* Scanlines overlay */
-body::after {
-  content: '';
-  position: fixed;
-  inset: 0;
-  background: repeating-linear-gradient(0deg, transparent, transparent 3px, rgba(0,0,0,0.08) 3px, rgba(0,0,0,0.08) 4px);
-  pointer-events: none;
-  z-index: 9000;
-}
+body { background: var(--page-bg); color: var(--white); font-family: var(--font); overflow-x: hidden; -webkit-font-smoothing: antialiased; }
+a { text-decoration: none; color: inherit; }
 
 /* NAV */
-nav {
-  position: fixed;
-  top: 0; left: 0; right: 0;
-  z-index: 1000;
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  padding: 16px 40px;
-  background: rgba(10,10,10,0.92);
-  border-bottom: 1px solid var(--grey4);
-  backdrop-filter: blur(4px);
-}
-
-.nav-logo {
-  font-family: var(--pixel);
-  font-size: 11px;
-  color: var(--white);
-  text-decoration: none;
-  letter-spacing: 0.05em;
-  display: flex;
-  align-items: center;
-  gap: 10px;
-}
-.nav-logo span { color: var(--grey2); }
-.nav-logo canvas { image-rendering: pixelated; }
-
-.nav-links { display: flex; gap: 32px; list-style: none; }
-.nav-links a {
-  font-family: var(--pixel);
-  font-size: 9px;
-  color: var(--grey2);
-  text-decoration: none;
-  letter-spacing: 0.1em;
-  transition: color 0.1s;
-  position: relative;
-}
-.nav-links a::after {
-  content: '';
-  position: absolute;
-  bottom: -4px; left: 0;
-  width: 0; height: 2px;
-  background: var(--white);
-  transition: width 0.15s steps(4);
-}
-.nav-links a:hover { color: var(--white); }
-.nav-links a:hover::after { width: 100%; }
+header { position: fixed; top: 0; left: 0; right: 0; z-index: 200; background: rgba(15,15,15,0.7); backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px); border-bottom: 1px solid var(--border); }
+.nav-inner { max-width: var(--page-max); margin: 0 auto; padding: 0 32px; height: var(--nav-height); display: flex; align-items: center; }
+.nav-logo { display: flex; align-items: center; gap: 10px; flex-shrink: 0; }
+.nav-logo-icon, .footer-logo-icon { display: grid; grid-template-columns: repeat(11,5px); gap: 1px; image-rendering: pixelated; }
+.nav-logo-icon div, .footer-logo-icon div { width: 5px; height: 5px; }
+.nav-logo-name, .footer-logo-name { font-family: var(--pixel); font-size: 8px; color: var(--white); letter-spacing: 0.04em; white-space: nowrap; }
+.nav-logo-name span, .footer-logo-name span { color: var(--grey3); }
+.nav-sep { width: 1px; height: 40px; background: var(--border); margin: 0 28px; flex-shrink: 0; }
+nav { flex: 1; }
+nav ul { display: flex; align-items: center; gap: 2px; list-style: none; }
+nav ul a { font-size: 15px; font-weight: 500; color: var(--grey2); padding: 7px 13px; border-radius: 100px; transition: color 0.15s; display: block; position: relative; }
+nav ul a::after { content: ''; position: absolute; bottom: 2px; left: 13px; width: 0; height: 2px; background: var(--white); border-radius: 2px; transition: width 0.2s; }
+nav ul a:hover { color: var(--white); }
+nav ul a:hover::after { width: calc(100% - 26px); }
+.nav-right { display: flex; align-items: center; gap: 8px; margin-left: auto; }
+.nav-social { width: 34px; height: 34px; display: flex; align-items: center; justify-content: center; border-radius: 50%; background: var(--surface); border: 1px solid var(--border); font-size: 10px; font-weight: 700; color: var(--grey2); transition: all 0.15s; }
+.nav-social:hover { background: var(--surface2); color: var(--white); }
 
 /* HERO */
-#home {
-  min-height: 100vh;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  padding: 100px 40px 60px;
-  position: relative;
-  overflow: hidden;
-}
+.hero { min-height: 100vh; padding-top: var(--nav-height); display: grid; grid-template-columns: 1fr 1fr; gap: 60px; max-width: var(--page-max); margin: 0 auto; padding-left: 32px; padding-right: 32px; padding-bottom: 80px; align-items: center; position: relative; }
+.hero-left { display: flex; flex-direction: column; gap: 28px; padding-top: 20px; position: relative; z-index: 1; }
+.hero-badge { display: inline-flex; align-items: center; gap: 8px; background: var(--surface); border: 1px solid var(--border); border-radius: 100px; padding: 7px 16px; width: fit-content; font-size: 13px; font-weight: 500; color: var(--grey2); }
+.badge-dot { width: 7px; height: 7px; background: var(--white); border-radius: 50%; animation: pulse 2s ease-in-out infinite; }
+@keyframes pulse { 0%,100%{opacity:1} 50%{opacity:0.4} }
+.hero-title { font-size: clamp(34px,5vw,60px); font-weight: 800; line-height: 1.1; letter-spacing: -0.02em; }
+.hero-title em { font-style: normal; color: var(--grey3); }
+.hero-desc { font-size: 18px; color: var(--grey2); line-height: 1.7; max-width: 440px; }
+.hero-actions { display: flex; gap: 12px; flex-wrap: wrap; }
+.btn { display: inline-flex; align-items: center; gap: 8px; font-family: var(--font); font-size: 15px; font-weight: 600; padding: 13px 24px; border-radius: 10px; transition: all 0.15s; cursor: pointer; border: none; }
+.btn-white { background: var(--white); color: var(--black); }
+.btn-white:hover { background: var(--grey1); transform: translateY(-1px); }
+.btn-outline { background: transparent; color: var(--white); border: 1px solid var(--border); }
+.btn-outline:hover { background: var(--surface); border-color: rgba(255,255,255,0.18); transform: translateY(-1px); }
 
-.hero-grid {
-  position: absolute;
-  inset: 0;
-  background-image:
-    linear-gradient(rgba(255,255,255,0.03) 1px, transparent 1px),
-    linear-gradient(90deg, rgba(255,255,255,0.03) 1px, transparent 1px);
-  background-size: 40px 40px;
-  animation: grid-scroll 20s linear infinite;
-}
-@keyframes grid-scroll {
-  from { background-position: 0 0; }
-  to   { background-position: 0 40px; }
-}
+.hero-bg-grid { position: absolute; inset: 0; background-image: linear-gradient(var(--border2) 1px, transparent 1px), linear-gradient(90deg, var(--border2) 1px, transparent 1px); background-size: 64px 64px; pointer-events: none; mask-image: radial-gradient(ellipse 80% 60% at 50% 40%, black 20%, transparent 80%); -webkit-mask-image: radial-gradient(ellipse 80% 60% at 50% 40%, black 20%, transparent 80%); }
 
-.hero-pixel-icon {
-  display: grid;
-  grid-template-columns: repeat(11, 16px);
-  gap: 3px;
-  margin-bottom: 40px;
-  image-rendering: pixelated;
-  animation: icon-in 0.8s steps(4) forwards;
-  opacity: 0;
-}
-@keyframes icon-in { to { opacity: 1; } }
+/* HERO CARD */
+.hero-right { position: relative; z-index: 1; }
+.hero-card { background: var(--surface); border-radius: 16px; border: 1px solid var(--border); overflow: hidden; }
+.hero-card-img { width: 100%; aspect-ratio: 4/3; background: var(--surface2); position: relative; overflow: hidden; }
+.hero-card-img canvas { display: block; width: 100%; height: 100%; }
+.card-badge { position: absolute; top: 12px; left: 12px; background: rgba(15,15,15,0.8); backdrop-filter: blur(8px); border: 1px solid var(--border); border-radius: 100px; padding: 5px 12px; font-size: 12px; font-weight: 600; color: var(--grey1); }
+.hero-card-body { padding: 20px 24px 24px; }
+.card-tag { font-size: 12px; font-weight: 600; color: var(--grey3); text-transform: uppercase; letter-spacing: 0.06em; margin-bottom: 6px; }
+.card-title { font-size: 20px; font-weight: 700; margin-bottom: 8px; }
+.card-desc { font-size: 14px; color: var(--grey2); line-height: 1.6; margin-bottom: 14px; }
+.card-link { font-size: 14px; font-weight: 600; color: var(--white); display: inline-flex; align-items: center; gap: 5px; transition: gap 0.15s; }
+.card-link:hover { gap: 10px; }
+.hero-float { position: absolute; bottom: -14px; right: -14px; background: var(--surface2); border: 1px solid var(--border); border-radius: 10px; padding: 14px 18px; }
+.float-label { font-size: 11px; color: var(--grey3); font-weight: 500; margin-bottom: 4px; }
+.float-val { font-family: var(--pixel); font-size: 11px; color: var(--white); }
 
-.hp { width: 16px; height: 16px; }
-.hp.w { background: #fff; }
-.hp.g { background: #444; }
-.hp.o { background: transparent; }
-
-.hero-title {
-  font-family: var(--pixel);
-  font-size: clamp(18px, 4vw, 36px);
-  color: var(--white);
-  text-align: center;
-  letter-spacing: 0.04em;
-  text-shadow: 4px 4px 0 #333;
-  animation: title-in 1s steps(1) 0.3s forwards;
-  opacity: 0;
-  position: relative;
-  z-index: 1;
-}
-.hero-title span { color: var(--grey2); }
-@keyframes title-in { to { opacity: 1; } }
-
-.hero-sub {
-  font-family: var(--vt);
-  font-size: 28px;
-  color: var(--grey2);
-  margin-top: 16px;
-  letter-spacing: 0.2em;
-  animation: title-in 1s steps(1) 0.6s forwards;
-  opacity: 0;
-  position: relative;
-  z-index: 1;
-}
-
-.hero-cta {
-  display: flex; gap: 16px; margin-top: 48px;
-  animation: title-in 1s steps(1) 0.9s forwards;
-  opacity: 0;
-  position: relative; z-index: 1;
-  flex-wrap: wrap; justify-content: center;
-}
-
-.btn {
-  font-family: var(--pixel);
-  font-size: 9px;
-  padding: 14px 24px;
-  letter-spacing: 0.1em;
-  text-decoration: none;
-  cursor: none;
-  transition: transform 0.05s, background 0.1s;
-  display: inline-block;
-}
-.btn-primary {
-  background: var(--white);
-  color: var(--bg);
-  border: 2px solid var(--white);
-}
-.btn-primary:hover { background: var(--grey2); border-color: var(--grey2); }
-.btn-secondary {
-  background: transparent;
-  color: var(--white);
-  border: 2px solid var(--grey3);
-}
-.btn-secondary:hover { border-color: var(--white); }
-.btn:active { transform: translate(2px, 2px); }
-
-.scroll-hint {
-  position: absolute;
-  bottom: 32px;
-  font-family: var(--vt);
-  font-size: 20px;
-  color: var(--grey3);
-  letter-spacing: 0.2em;
-  animation: blink 1.2s steps(1) infinite;
-}
-@keyframes blink { 0%,49%{opacity:1} 50%,100%{opacity:0} }
+/* STATS */
+.stats-strip { border-top: 1px solid var(--border); border-bottom: 1px solid var(--border); }
+.stats-inner { max-width: var(--page-max); margin: 0 auto; padding: 0 32px; display: grid; grid-template-columns: repeat(4,1fr); }
+.stat-cell { padding: 36px 24px; border-right: 1px solid var(--border); }
+.stat-cell:last-child { border-right: none; }
+.stat-num { font-size: clamp(30px,4vw,52px); font-weight: 800; letter-spacing: -0.03em; line-height: 1; margin-bottom: 8px; }
+.stat-desc { font-size: 14px; color: var(--grey3); line-height: 1.5; }
 
 /* SECTIONS */
-section { padding: 100px 40px; max-width: 1100px; margin: 0 auto; }
+.section { max-width: var(--page-max); margin: 0 auto; padding: 80px 32px; }
+.section-top { display: flex; align-items: baseline; justify-content: space-between; margin-bottom: 36px; gap: 16px; }
+.section-heading { font-size: clamp(22px,3vw,32px); font-weight: 700; letter-spacing: -0.01em; }
+.section-all { font-size: 14px; font-weight: 600; color: var(--grey3); transition: color 0.15s; }
+.section-all:hover { color: var(--white); }
 
-.section-label {
-  font-family: var(--pixel);
-  font-size: 8px;
-  color: var(--grey3);
-  letter-spacing: 0.3em;
-  margin-bottom: 12px;
-  display: flex;
-  align-items: center;
-  gap: 12px;
-}
-.section-label::before {
-  content: '';
-  display: inline-block;
-  width: 8px; height: 8px;
-  background: var(--white);
-}
-
-.section-title {
-  font-family: var(--pixel);
-  font-size: clamp(14px, 2.5vw, 22px);
-  color: var(--white);
-  margin-bottom: 48px;
-  line-height: 1.6;
-}
+/* NEWS */
+.news-grid { display: grid; grid-template-columns: 1.5fr 1fr; gap: 16px; }
+.news-main { background: var(--surface); border: 1px solid var(--border); border-radius: 16px; overflow: hidden; transition: border-color 0.15s, transform 0.2s; display: block; }
+.news-main:hover { border-color: rgba(255,255,255,0.18); transform: translateY(-2px); }
+.news-img { width: 100%; aspect-ratio: 16/8; background: var(--surface2); overflow: hidden; }
+.news-img canvas { width: 100%; height: 100%; object-fit: cover; display: block; }
+.news-body { padding: 24px; }
+.news-tag { font-size: 12px; font-weight: 600; color: var(--grey3); text-transform: uppercase; letter-spacing: 0.06em; margin-bottom: 8px; }
+.news-title { font-size: 20px; font-weight: 700; line-height: 1.35; margin-bottom: 10px; }
+.news-desc { font-size: 14px; color: var(--grey2); line-height: 1.65; }
+.news-stack { display: flex; flex-direction: column; gap: 12px; }
+.news-small { background: var(--surface); border: 1px solid var(--border); border-radius: 12px; padding: 18px 20px; flex: 1; transition: border-color 0.15s, transform 0.15s; display: block; }
+.news-small:hover { border-color: rgba(255,255,255,0.18); transform: translateY(-1px); }
+.ns-tag { font-size: 11px; font-weight: 600; color: var(--grey3); text-transform: uppercase; letter-spacing: 0.06em; margin-bottom: 5px; }
+.ns-title { font-size: 15px; font-weight: 700; line-height: 1.4; margin-bottom: 5px; }
+.ns-desc { font-size: 13px; color: var(--grey3); line-height: 1.5; }
 
 /* GAMES */
-#games { max-width: 1100px; margin: 0 auto; padding: 100px 40px; }
+.games-bg { border-top: 1px solid var(--border); }
+.games-grid { display: grid; grid-template-columns: repeat(3,1fr); gap: 16px; }
+.game-card { background: var(--surface); border: 1px solid var(--border); border-radius: 14px; overflow: hidden; transition: border-color 0.15s, transform 0.2s; display: block; }
+.game-card:hover { border-color: rgba(255,255,255,0.18); transform: translateY(-3px); }
+.game-thumb { width: 100%; aspect-ratio: 16/9; background: var(--surface2); overflow: hidden; }
+.game-thumb canvas { width: 100%; height: 100%; object-fit: cover; display: block; }
+.game-body { padding: 16px 18px 18px; }
+.game-platform { font-size: 11px; font-weight: 600; color: var(--grey3); text-transform: uppercase; letter-spacing: 0.06em; margin-bottom: 5px; }
+.game-name { font-size: 16px; font-weight: 700; margin-bottom: 10px; }
+.game-pill { display: inline-flex; align-items: center; gap: 5px; background: var(--surface2); border: 1px solid var(--border); border-radius: 100px; padding: 4px 10px; font-size: 11px; font-weight: 600; color: var(--grey2); }
+.pill-dot { width: 5px; height: 5px; border-radius: 50%; background: var(--grey3); }
+.game-pill.live { color: var(--white); }
+.game-pill.live .pill-dot { background: #4ade80; animation: pulse 1.5s ease-in-out infinite; }
 
-.games-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
-  gap: 2px;
-}
-
-.game-card {
-  background: var(--bg2);
-  border: 1px solid var(--grey4);
-  padding: 32px;
-  position: relative;
-  overflow: hidden;
-  transition: border-color 0.15s;
-  cursor: none;
-}
-.game-card::before {
-  content: '';
-  position: absolute;
-  inset: 0;
-  background: linear-gradient(135deg, rgba(255,255,255,0.03) 0%, transparent 60%);
-  opacity: 0;
-  transition: opacity 0.2s;
-}
-.game-card:hover { border-color: var(--grey2); }
-.game-card:hover::before { opacity: 1; }
-
-.game-thumb {
-  width: 100%;
-  aspect-ratio: 16/9;
-  background: var(--bg3);
-  margin-bottom: 24px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  border: 1px solid var(--grey4);
-  position: relative;
-  overflow: hidden;
-}
-
-.game-pixel-art {
-  display: grid;
-  image-rendering: pixelated;
-}
-
-.game-tag {
-  font-family: var(--pixel);
-  font-size: 7px;
-  color: var(--grey3);
-  letter-spacing: 0.2em;
-  margin-bottom: 8px;
-}
-.game-name {
-  font-family: var(--pixel);
-  font-size: 13px;
-  color: var(--white);
-  margin-bottom: 12px;
-  line-height: 1.6;
-}
-.game-desc {
-  font-family: var(--vt);
-  font-size: 20px;
-  color: var(--grey2);
-  line-height: 1.5;
-}
-.game-status {
-  display: inline-block;
-  margin-top: 16px;
-  font-family: var(--pixel);
-  font-size: 7px;
-  padding: 6px 10px;
-  border: 1px solid var(--grey3);
-  color: var(--grey2);
-  letter-spacing: 0.15em;
-}
-.game-status.wip { border-color: var(--grey2); color: var(--white); animation: blink 2s steps(1) infinite; }
-
-/* ABOUT */
-#about { border-top: 1px solid var(--grey4); }
-
-.about-layout {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 80px;
-  align-items: start;
-}
-@media (max-width: 700px) { .about-layout { grid-template-columns: 1fr; gap: 40px; } }
-
-.about-text {
-  font-family: var(--vt);
-  font-size: 22px;
-  color: var(--grey1);
-  line-height: 1.7;
-}
-.about-text p + p { margin-top: 20px; }
-
-.about-stats {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 2px;
-}
-.stat-box {
-  background: var(--bg2);
-  border: 1px solid var(--grey4);
-  padding: 24px;
-}
-.stat-num {
-  font-family: var(--pixel);
-  font-size: 24px;
-  color: var(--white);
-  display: block;
-  margin-bottom: 8px;
-  text-shadow: 2px 2px 0 #333;
-}
-.stat-label {
-  font-family: var(--vt);
-  font-size: 18px;
-  color: var(--grey3);
-  letter-spacing: 0.1em;
-}
-
-/* CONTACT */
-#contact { border-top: 1px solid var(--grey4); }
-
-.contact-layout {
-  display: grid;
-  grid-template-columns: 1fr 1.2fr;
-  gap: 80px;
-  align-items: start;
-}
-@media (max-width: 700px) { .contact-layout { grid-template-columns: 1fr; gap: 40px; } }
-
-.contact-info {
-  font-family: var(--vt);
-  font-size: 22px;
-  color: var(--grey2);
-  line-height: 1.8;
-}
-
-.socials { margin-top: 32px; display: flex; flex-direction: column; gap: 12px; }
-.social-link {
-  font-family: var(--pixel);
-  font-size: 8px;
-  color: var(--grey2);
-  text-decoration: none;
-  display: flex;
-  align-items: center;
-  gap: 12px;
-  transition: color 0.1s;
-  cursor: none;
-}
-.social-link::before {
-  content: '>';
-  color: var(--grey4);
-  transition: color 0.1s;
-}
-.social-link:hover { color: var(--white); }
-.social-link:hover::before { color: var(--white); }
-
-.contact-form { display: flex; flex-direction: column; gap: 16px; }
-
-.form-field { display: flex; flex-direction: column; gap: 8px; }
-.form-field label {
-  font-family: var(--pixel);
-  font-size: 8px;
-  color: var(--grey3);
-  letter-spacing: 0.2em;
-}
-.form-field input,
-.form-field textarea {
-  background: var(--bg2);
-  border: 1px solid var(--grey4);
-  color: var(--white);
-  font-family: var(--vt);
-  font-size: 20px;
-  padding: 12px 16px;
-  outline: none;
-  transition: border-color 0.1s;
-  resize: none;
-  cursor: none;
-}
-.form-field input:focus,
-.form-field textarea:focus { border-color: var(--white); }
-.form-field input::placeholder,
-.form-field textarea::placeholder { color: var(--grey3); }
-.form-field textarea { min-height: 120px; }
-
-.form-submit {
-  font-family: var(--pixel);
-  font-size: 9px;
-  background: var(--white);
-  color: var(--bg);
-  border: none;
-  padding: 16px 28px;
-  letter-spacing: 0.1em;
-  cursor: none;
-  align-self: flex-start;
-  transition: background 0.1s, transform 0.05s;
-}
-.form-submit:hover { background: var(--grey2); }
-.form-submit:active { transform: translate(2px,2px); }
-
-.form-msg {
-  font-family: var(--pixel);
-  font-size: 8px;
-  color: var(--grey2);
-  display: none;
-  letter-spacing: 0.1em;
-}
+/* COMMUNITY */
+.community-bg { background: var(--surface); border-top: 1px solid var(--border); }
+.community-inner { max-width: var(--page-max); margin: 0 auto; padding: 80px 32px; display: grid; grid-template-columns: 1fr 1fr; gap: 80px; align-items: center; }
+.community-title { font-size: clamp(26px,3.5vw,42px); font-weight: 800; letter-spacing: -0.02em; line-height: 1.15; margin-bottom: 16px; }
+.community-desc { font-size: 16px; color: var(--grey2); line-height: 1.7; margin-bottom: 28px; max-width: 400px; }
+.community-btns { display: flex; gap: 10px; flex-wrap: wrap; }
+.soc-btn { display: inline-flex; align-items: center; background: var(--surface2); border: 1px solid var(--border); border-radius: 10px; padding: 10px 18px; font-size: 14px; font-weight: 600; color: var(--grey1); transition: all 0.15s; }
+.soc-btn:hover { background: rgba(255,255,255,0.08); border-color: rgba(255,255,255,0.18); color: var(--white); transform: translateY(-1px); }
+.comm-stats { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+.comm-stat { background: var(--page-bg); border: 1px solid var(--border); border-radius: 12px; padding: 22px; }
+.comm-stat-num { font-size: 30px; font-weight: 800; letter-spacing: -0.02em; margin-bottom: 4px; }
+.comm-stat-label { font-size: 13px; color: var(--grey3); }
 
 /* FOOTER */
-footer {
-  border-top: 1px solid var(--grey4);
-  padding: 32px 40px;
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  flex-wrap: wrap;
-  gap: 16px;
-}
-.footer-logo {
-  font-family: var(--pixel);
-  font-size: 10px;
-  color: var(--grey3);
-}
-.footer-logo span { color: var(--grey4); }
-.footer-copy {
-  font-family: var(--vt);
-  font-size: 16px;
-  color: var(--grey4);
-  letter-spacing: 0.1em;
-}
+footer { border-top: 1px solid var(--border); background: var(--page-bg); }
+.footer-inner { max-width: var(--page-max); margin: 0 auto; padding: 56px 32px 32px; }
+.footer-top { display: grid; grid-template-columns: 1.8fr 1fr 1fr; gap: 48px; margin-bottom: 48px; }
+.footer-brand { display: flex; flex-direction: column; gap: 14px; }
+.footer-logo { display: flex; align-items: center; gap: 10px; }
+.footer-tagline { font-size: 14px; color: var(--grey3); line-height: 1.65; max-width: 260px; }
+.footer-col h4 { font-size: 12px; font-weight: 700; color: var(--grey3); text-transform: uppercase; letter-spacing: 0.08em; margin-bottom: 16px; }
+.footer-links { list-style: none; display: flex; flex-direction: column; gap: 10px; }
+.footer-links a { font-size: 14px; color: var(--grey2); transition: color 0.15s; }
+.footer-links a:hover { color: var(--white); }
+.footer-bottom { border-top: 1px solid var(--border); padding-top: 24px; display: flex; justify-content: space-between; align-items: center; gap: 16px; flex-wrap: wrap; }
+.footer-copy { font-size: 13px; color: var(--grey3); }
+.footer-pixel { font-family: var(--pixel); font-size: 7px; color: rgba(255,255,255,0.12); letter-spacing: 0.1em; }
 
-/* Mobile nav */
-@media (max-width: 600px) {
-  nav { padding: 14px 20px; }
-  .nav-links { gap: 16px; }
-  .nav-links a { font-size: 7px; }
-  section, #games { padding: 60px 20px; }
-  footer { padding: 24px 20px; }
-}
+/* RESPONSIVE */
+@media(max-width:1024px){ .hero { grid-template-columns: 1fr; min-height: auto; } .hero-right { display: none; } .community-inner { grid-template-columns: 1fr; gap: 40px; } .comm-stats { display: none; } }
+@media(max-width:768px){ nav ul { display: none; } .nav-sep { display: none; } .nav-inner { padding: 0 20px; } .stats-inner { grid-template-columns: 1fr 1fr; } .stat-cell:nth-child(2) { border-right: none; } .news-grid { grid-template-columns: 1fr; } .games-grid { grid-template-columns: 1fr 1fr; } .section { padding: 56px 20px; } .footer-top { grid-template-columns: 1fr; } .community-inner { padding: 56px 20px; } .hero { padding-left: 20px; padding-right: 20px; padding-bottom: 56px; } }
+@media(max-width:480px){ .games-grid { grid-template-columns: 1fr; } }
 </style>
 </head>
 <body>
 
-<div id="cursor"></div>
-
-<!-- NAV -->
-<nav>
-  <a href="#home" class="nav-logo"><canvas id="navLogo" width="33" height="33"></canvas>DIGITAL <span>PXL</span></a>
-  <ul class="nav-links">
-    <li><a href="#games">GAMES</a></li>
-    <li><a href="#about">ABOUT</a></li>
-    <li><a href="#contact">CONTACT</a></li>
-  </ul>
-</nav>
-
-<!-- HERO -->
-<section id="home">
-  <div class="hero-grid"></div>
-
-  <div class="hero-pixel-icon" id="heroIcon"></div>
-
-  <h1 class="hero-title">DIGITAL <span>PXL</span></h1>
-  <p class="hero-sub">// GAME DEVELOPMENT STUDIO</p>
-
-  <div class="hero-cta">
-    <a href="#games" class="btn btn-primary">VIEW GAMES</a>
-    <a href="#contact" class="btn btn-secondary">GET IN TOUCH</a>
+<header>
+  <div class="nav-inner">
+    <a href="#" class="nav-logo">
+      <div class="nav-logo-icon" id="navIcon"></div>
+      <span class="nav-logo-name">DIGITAL <span>PXL</span></span>
+    </a>
+    <div class="nav-sep"></div>
+    <nav><ul>
+      <li><a href="#">Home</a></li>
+      <li><a href="#games">Games</a></li>
+      <li><a href="#news">Devlog</a></li>
+      <li><a href="#community">Community</a></li>
+      <li><a href="#">Merch</a></li>
+    </ul></nav>
+    <div class="nav-right">
+      <a class="nav-social" href="https://discord.gg/RzZQqpJEzV">DC</a>
+      <a class="nav-social" href="https://x.com/_DigitalPXL">X</a>
+      <a class="nav-social" href="https://www.youtube.com/@digitalpxl">YT</a>
+      <a class="nav-social" href="https://www.tiktok.com/@digital.pxl">TK</a>
+    </div>
   </div>
+</header>
 
-  <div class="scroll-hint">▼ SCROLL ▼</div>
+<section class="hero">
+  <div class="hero-bg-grid"></div>
+  <div class="hero-left">
+    <div class="hero-badge"><div class="badge-dot"></div>Independent Game Studio — Queensland, AU</div>
+    <h1 class="hero-title">Building games that are <em>PXL perfect.</em></h1>
+    <p class="hero-desc">Digital PXL is an indie game studio crafting VR and PC games from scratch. From Cubical Combat VR to browser games — we build with purpose.</p>
+    <div class="hero-actions">
+      <a href="#games" class="btn btn-white">View our games</a>
+      <a href="https://discord.gg/RzZQqpJEzV" class="btn btn-outline">Join community</a>
+    </div>
+  </div>
+  <div class="hero-right">
+    <div class="hero-card">
+      <div class="hero-card-img">
+        <canvas id="heroCanvas" width="480" height="360"></canvas>
+        <div class="card-badge">In Development</div>
+      </div>
+      <div class="hero-card-body">
+        <div class="card-tag">VR · Shooter · UE5</div>
+        <div class="card-title">Cubical Combat VR</div>
+        <p class="card-desc">Fast-paced VR combat in fully destructible cube environments. Physics-based, motion-controlled.</p>
+        <a href="#games" class="card-link">Learn more →</a>
+      </div>
+    </div>
+    <div class="hero-float">
+      <div class="float-label">Engine</div>
+      <div class="float-val">UE 5.7</div>
+    </div>
+  </div>
 </section>
 
-<!-- GAMES -->
-<div id="games">
-  <div class="section-label">// 001</div>
-  <h2 class="section-title">GAMES</h2>
-
-  <div class="games-grid">
-
-    <div class="game-card">
-      <div class="game-thumb" id="thumb2"></div>
-      <div class="game-tag">SHOOTER / VR</div>
-      <div class="game-name">CUBICAL COMBAT VR</div>
-      <div class="game-desc">Add your game description here. Tell players what makes it unique.</div>
-      <span class="game-status">COMING SOON</span>
-    </div>
-
+<div class="stats-strip">
+  <div class="stats-inner">
+    <div class="stat-cell"><div class="stat-num">2026</div><div class="stat-desc">Studio founded in QLD, Australia</div></div>
+    <div class="stat-cell"><div class="stat-num">UE5</div><div class="stat-desc">Powering our flagship VR title</div></div>
+    <div class="stat-cell"><div class="stat-num">3+</div><div class="stat-desc">Games shipped and in development</div></div>
+    <div class="stat-cell"><div class="stat-num">PXL</div><div class="stat-desc">Perfect — our standard for everything</div></div>
   </div>
 </div>
 
-<!-- ABOUT -->
-<section id="about">
-  <div class="section-label">// 002</div>
-  <h2 class="section-title">ABOUT US</h2>
-  <div class="about-layout">
-    <div class="about-text">
-      <p>Digital PXL is an independent game development studio built on a simple idea — games should feel as good as they look.</p>
-      <p>We craft pixel-perfect experiences that push the boundaries of what indie games can be. Every frame, every mechanic, every sound — PXL perfect.</p>
-      <p>Based in the digital trenches, powered by caffeine and creativity.</p>
+<div id="news">
+  <div class="section">
+    <div class="section-top">
+      <h2 class="section-heading">Latest from the studio</h2>
+      <a href="#" class="section-all">All posts →</a>
     </div>
-    <div class="about-stats">
-      <div class="stat-box">
-        <span class="stat-num">01</span>
-        <span class="stat-label">STUDIO</span>
-      </div>
-      <div class="stat-box">
-        <span class="stat-num">∞</span>
-        <span class="stat-label">IDEAS</span>
-      </div>
-      <div class="stat-box">
-        <span class="stat-num">UE5</span>
-        <span class="stat-label">ENGINE</span>
-      </div>
-      <div class="stat-box">
-        <span class="stat-num">PXL</span>
-        <span class="stat-label">PERFECT</span>
+    <div class="news-grid">
+      <a href="#" class="news-main">
+        <div class="news-img" id="newsImg"></div>
+        <div class="news-body">
+          <div class="news-tag">Devlog · Cubical Combat VR</div>
+          <div class="news-title">Pre-Alpha Update — Core mechanics are in</div>
+          <p class="news-desc">VR motion controls, the booster system and the first arena are taking shape. Here's a full breakdown of what's working and what's coming next.</p>
+        </div>
+      </a>
+      <div class="news-stack">
+        <a href="#" class="news-small"><div class="ns-tag">Community · PXL SMP</div><div class="ns-title">PXL SMP server is now open</div><p class="ns-desc">Join the Minecraft community and play on the Digital PXL server.</p></a>
+        <a href="pxl_dash.html" class="news-small"><div class="ns-tag">Release · PXL Dash</div><div class="ns-title">PXL Dash is live — play now</div><p class="ns-desc">Our free browser runner featuring the PXL mascot is playable right now.</p></a>
+        <a href="#" class="news-small"><div class="ns-tag">Studio</div><div class="ns-title">Digital PXL is officially open</div><p class="ns-desc">Website, brand, mascot and socials are all live. Welcome to Digital PXL.</p></a>
       </div>
     </div>
   </div>
-</section>
+</div>
 
-<!-- CONTACT -->
-<section id="contact">
-  <div class="section-label">// 003</div>
-  <h2 class="section-title">GET IN TOUCH</h2>
-  <div class="contact-layout">
-    <div class="contact-info">
-      <p>Got a collab idea? Press opportunity? Or just want to talk games?</p>
-      <p style="margin-top:16px;">Drop us a message and we'll get back to you.</p>
-      <div class="socials">
-        <a href="https://x.com/_DigitalPXL" class="social-link">TWITTER / X</a>
-        <a href="https://www.instagram.com/digital.pxl/" class="social-link">INSTAGRAM</a>
-        <a href="https://www.tiktok.com/@digital.pxl" class="social-link">TIKTOK</a>
-        <a href="https://discord.gg/RzZQqpJEzV" class="social-link">DISCORD</a>
-        <a href="https://www.youtube.com/@digitalpxl" class="social-link">YOUTUBE</a>
+<div id="games" class="games-bg">
+  <div class="section">
+    <div class="section-top">
+      <h2 class="section-heading">Our games</h2>
+      <a href="#" class="section-all">All games →</a>
+    </div>
+    <div class="games-grid">
+      <a href="#" class="game-card"><div class="game-thumb" id="gt1"></div><div class="game-body"><div class="game-platform">PC VR · Meta Quest</div><div class="game-name">Cubical Combat VR</div><span class="game-pill"><span class="pill-dot"></span>In Development</span></div></a>
+      <a href="pxl_dash.html" class="game-card"><div class="game-thumb" id="gt2"></div><div class="game-body"><div class="game-platform">Browser · PC</div><div class="game-name">PXL Dash</div><span class="game-pill live"><span class="pill-dot"></span>Play Now</span></div></a>
+      <a href="digital_pxl_snake.html" class="game-card"><div class="game-thumb" id="gt3"></div><div class="game-body"><div class="game-platform">Browser</div><div class="game-name">PXL Snake</div><span class="game-pill live"><span class="pill-dot"></span>Play Now</span></div></a>
+    </div>
+  </div>
+</div>
+
+<div id="community" class="community-bg">
+  <div class="community-inner">
+    <div>
+      <h2 class="community-title">Join the Digital PXL community</h2>
+      <p class="community-desc">Get dev updates, game drops, community events and more. We're building something big — come be part of it.</p>
+      <div class="community-btns">
+        <a href="https://discord.gg/RzZQqpJEzV" class="soc-btn">Discord</a>
+        <a href="https://www.tiktok.com/@digital.pxl" class="soc-btn">TikTok</a>
+        <a href="https://www.youtube.com/@digitalpxl" class="soc-btn">YouTube</a>
+        <a href="https://x.com/_DigitalPXL" class="soc-btn">X / Twitter</a>
+        <a href="https://www.instagram.com/digital.pxl/" class="soc-btn">Instagram</a>
       </div>
     </div>
-    <form class="contact-form" action="https://formspree.io/f/maqppppl" method="POST">
-      <div class="form-field">
-        <label>YOUR NAME</label>
-        <input type="text" name="name" placeholder="Player One" required>
-      </div>
-      <div class="form-field">
-        <label>EMAIL</label>
-        <input type="email" name="email" placeholder="you@example.com" required>
-      </div>
-      <div class="form-field">
-        <label>MESSAGE</label>
-        <textarea name="message" placeholder="Type your message here..." required></textarea>
-      </div>
-      <button type="submit" class="form-submit">SEND MESSAGE ▶</button>
-    </form>
+    <div class="comm-stats">
+      <div class="comm-stat"><div class="comm-stat-num">SMP</div><div class="comm-stat-label">Active Minecraft server</div></div>
+      <div class="comm-stat"><div class="comm-stat-num">24/7</div><div class="comm-stat-label">Server uptime</div></div>
+      <div class="comm-stat"><div class="comm-stat-num">Free</div><div class="comm-stat-label">All browser games</div></div>
+      <div class="comm-stat"><div class="comm-stat-num">AU</div><div class="comm-stat-label">Queensland, Australia</div></div>
+    </div>
   </div>
-</section>
+</div>
 
-<!-- FOOTER -->
 <footer>
-  <div class="footer-logo">DIGITAL <span>PXL</span></div>
-  <div class="footer-copy">© 2026 DIGITAL PXL. ALL RIGHTS RESERVED.</div>
+  <div class="footer-inner">
+    <div class="footer-top">
+      <div class="footer-brand">
+        <div class="footer-logo"><div class="footer-logo-icon" id="footerIcon"></div><span class="footer-logo-name">DIGITAL <span>PXL</span></span></div>
+        <p class="footer-tagline">Independent game studio building pixel-perfect experiences from Queensland, Australia.</p>
+      </div>
+      <div class="footer-col"><h4>Site</h4><ul class="footer-links"><li><a href="#">Home</a></li><li><a href="#games">Games</a></li><li><a href="#news">Devlog</a></li><li><a href="#">Merch</a></li><li><a href="digital_pxl_brand.html">Trademarks</a></li><li><a href="mailto:admin@digitalpxl.org">Contact</a></li></ul></div>
+      <div class="footer-col"><h4>Connect</h4><ul class="footer-links"><li><a href="https://discord.gg/RzZQqpJEzV">Discord</a></li><li><a href="https://www.tiktok.com/@digital.pxl">TikTok</a></li><li><a href="https://www.youtube.com/@digitalpxl">YouTube</a></li><li><a href="https://x.com/_DigitalPXL">X / Twitter</a></li><li><a href="https://www.instagram.com/digital.pxl/">Instagram</a></li></ul></div>
+    </div>
+    <div class="footer-bottom"><span class="footer-copy">© 2026 Digital PXL. All rights reserved.</span><span class="footer-pixel">PXL PERFECT</span></div>
+  </div>
 </footer>
 
 <script>
-// Cursor
-const cursor = document.getElementById('cursor');
-document.addEventListener('mousemove', e => {
-  cursor.style.left = e.clientX + 'px';
-  cursor.style.top = e.clientY + 'px';
-});
+const iconGrid=[[0,1,1,1,1,1,1,1,0,0,0],[1,1,2,2,2,2,2,1,1,0,0],[1,2,0,0,0,0,0,2,1,1,0],[1,2,0,1,1,1,0,0,2,1,1],[1,2,0,1,0,1,0,0,2,1,1],[1,2,0,1,1,1,0,0,2,1,1],[1,2,0,0,0,0,0,0,2,1,1],[1,2,0,0,0,0,0,2,1,1,0],[1,1,2,2,2,2,2,1,1,0,0],[0,1,1,1,1,1,1,1,0,0,0],[0,0,0,0,0,0,0,0,0,0,0]];
+function drawIcon(id){const el=document.getElementById(id);if(!el)return;iconGrid.forEach(row=>row.forEach(v=>{const d=document.createElement('div');d.style.background=v===1?'#fff':v===2?'#444':'transparent';el.appendChild(d);}));}
+drawIcon('navIcon');drawIcon('footerIcon');
 
-// Pixel logo grid
-const logoGrid = [
-  [0,1,1,1,1,1,1,1,0,0,0],
-  [1,1,2,2,2,2,2,1,1,0,0],
-  [1,2,0,0,0,0,0,2,1,1,0],
-  [1,2,0,1,1,1,0,0,2,1,1],
-  [1,2,0,1,0,1,0,0,2,1,1],
-  [1,2,0,1,1,1,0,0,2,1,1],
-  [1,2,0,0,0,0,0,0,2,1,1],
-  [1,2,0,0,0,0,0,2,1,1,0],
-  [1,1,2,2,2,2,2,1,1,0,0],
-  [0,1,1,1,1,1,1,1,0,0,0],
-  [0,0,0,0,0,0,0,0,0,0,0],
-];
+// Hero canvas — PXL running scene
+const hc=document.getElementById('heroCanvas');
+if(hc){const ctx=hc.getContext('2d');let f=0;
+function drawHero(){
+  ctx.fillStyle='#161616';ctx.fillRect(0,0,480,360);
+  ctx.strokeStyle='rgba(255,255,255,0.04)';ctx.lineWidth=1;
+  for(let x=0;x<480;x+=24){ctx.beginPath();ctx.moveTo(x,0);ctx.lineTo(x,360);ctx.stroke();}
+  for(let y=0;y<360;y+=24){ctx.beginPath();ctx.moveTo(0,y);ctx.lineTo(480,y);ctx.stroke();}
+  ctx.fillStyle='#1c1c1c';ctx.fillRect(0,292,480,68);
+  ctx.fillStyle='#2a2a2a';ctx.fillRect(0,292,480,2);
+  [[100,220,28,72],[240,256,28,36],[380,192,28,100]].forEach(([x,y,w,h])=>{ctx.fillStyle='#2a2a2a';ctx.fillRect(x,y,w,h);ctx.fillStyle='#f87171';ctx.fillRect(x,y,w,3);ctx.fillStyle='#222';ctx.fillRect(x+3,y+6,w-6,h-9);});
+  const mx=60+Math.sin(f*0.07)*2,my=254+Math.abs(Math.sin(f*0.14))*-16;
+  ctx.fillStyle='#e8e8e8';ctx.fillRect(mx,my+10,22,16);ctx.fillStyle='#f5f5f5';ctx.fillRect(mx+4,my+12,14,10);
+  ctx.fillStyle='#f0f0f0';ctx.fillRect(mx-1,my,24,13);
+  ctx.fillStyle='#e0e0e0';ctx.fillRect(mx-1,my-3,5,5);ctx.fillRect(mx+20,my-3,5,5);
+  ctx.fillStyle='#f0c0c0';ctx.fillRect(mx,my-2,3,3);ctx.fillRect(mx+21,my-2,3,3);
+  ctx.fillStyle='#fff';ctx.fillRect(mx+3,my+3,6,6);ctx.fillRect(mx+14,my+3,6,6);
+  ctx.fillStyle='#111';ctx.fillRect(mx+5,my+4,3,4);ctx.fillRect(mx+16,my+4,3,4);
+  ctx.fillStyle='#fff';ctx.fillRect(mx+6,my+5,1,2);ctx.fillRect(mx+17,my+5,1,2);
+  ctx.fillStyle='rgba(240,160,160,0.6)';ctx.fillRect(mx+1,my+8,4,2);ctx.fillRect(mx+18,my+8,4,2);
+  ctx.fillStyle='#888';ctx.fillRect(mx+7,my+10,2,2);ctx.fillRect(mx+9,my+11,5,2);ctx.fillRect(mx+14,my+10,2,2);
+  ctx.fillStyle='#333';ctx.fillRect(mx+4,my-5,15,5);ctx.fillRect(mx+3,my-1,17,3);ctx.fillStyle='#555';ctx.fillRect(mx+11,my-4,7,3);
+  ctx.fillStyle='#fff';ctx.fillRect(mx+12,my-4,1,3);ctx.fillRect(mx+12,my-4,3,1);ctx.fillRect(mx+12,my-2,2,1);
+  const la=Math.sin(f*0.2)>0?2:-2;
+  ctx.fillStyle='#ddd';ctx.fillRect(mx-5,my+12,5,8+la);ctx.fillRect(mx+22,my+12,5,8-la);
+  ctx.fillStyle='#ccc';ctx.fillRect(mx+4,my+26,6,5+la);ctx.fillRect(mx+12,my+26,6,5-la);
+  ctx.fillStyle='#bbb';ctx.fillRect(mx+2,my+30+la,8,3);ctx.fillRect(mx+12,my+30-la,8,3);
+  const pu={x:300,y:188+Math.sin(f*0.05)*6};
+  ctx.fillStyle='rgba(251,191,36,0.15)';ctx.fillRect(pu.x-4,pu.y-4,24,24);
+  ctx.fillStyle='#fbbf24';ctx.fillRect(pu.x,pu.y,16,16);ctx.fillStyle='#fff';ctx.fillRect(pu.x+3,pu.y+3,4,4);
+  ctx.fillStyle='rgba(255,255,255,0.06)';ctx.fillRect(10,10,148,34);
+  ctx.fillStyle='#fff';ctx.font="bold 10px 'Press Start 2P',monospace";ctx.textAlign='left';
+  ctx.fillText('SCORE '+String(Math.floor(f/2)).padStart(4,'0'),18,32);
+  f++;requestAnimationFrame(drawHero);}
+drawHero();}
 
-function drawLogoOnCanvas(canvasEl, pxSize) {
-  const ctx = canvasEl.getContext('2d');
-  const gap = 1;
-  canvasEl.width = 11 * (pxSize + gap);
-  canvasEl.height = 11 * (pxSize + gap);
-  logoGrid.forEach((row, ri) => {
-    row.forEach((val, ci) => {
-      if (val === 0) return;
-      ctx.fillStyle = val === 1 ? '#ffffff' : '#444444';
-      ctx.fillRect(ci*(pxSize+gap), ri*(pxSize+gap), pxSize, pxSize);
-    });
-  });
-}
+// News image
+const ni=document.getElementById('newsImg');
+if(ni){const c=document.createElement('canvas');c.width=640;c.height=320;const ctx=c.getContext('2d');
+  ctx.fillStyle='#161616';ctx.fillRect(0,0,640,320);
+  ctx.strokeStyle='rgba(255,255,255,0.03)';
+  for(let x=0;x<640;x+=32){ctx.beginPath();ctx.moveTo(x,0);ctx.lineTo(x,320);ctx.stroke();}
+  for(let y=0;y<320;y+=32){ctx.beginPath();ctx.moveTo(0,y);ctx.lineTo(640,y);ctx.stroke();}
+  [[80,60,90,100],[210,50,110,120],[380,70,100,110],[510,60,90,100],[160,190,70,70],[320,170,90,90],[460,160,80,80]].forEach(([x,y,w,h],i)=>{const g=32+i*8;ctx.fillStyle=`rgb(${g},${g},${g})`;ctx.fillRect(x,y,w,h);ctx.fillStyle=`rgb(${g+14},${g+14},${g+14})`;ctx.fillRect(x,y,w,3);});
+  ctx.fillStyle='rgba(255,255,255,0.07)';ctx.font="bold 16px 'Press Start 2P',monospace";ctx.textAlign='center';ctx.fillText('CUBICAL COMBAT VR',320,300);
+  c.style.cssText='width:100%;height:100%;object-fit:cover;display:block;';ni.appendChild(c);}
 
-// Nav logo (small)
-drawLogoOnCanvas(document.getElementById('navLogo'), 2);
-
-// Hero icon
-const heroGrid = [
-  [0,1,1,1,1,1,1,1,0,0,0],
-  [1,1,2,2,2,2,2,1,1,0,0],
-  [1,2,0,0,0,0,0,2,1,1,0],
-  [1,2,0,1,1,1,0,0,2,1,1],
-  [1,2,0,1,0,1,0,0,2,1,1],
-  [1,2,0,1,1,1,0,0,2,1,1],
-  [1,2,0,0,0,0,0,0,2,1,1],
-  [1,2,0,0,0,0,0,2,1,1,0],
-  [1,1,2,2,2,2,2,1,1,0,0],
-  [0,1,1,1,1,1,1,1,0,0,0],
-  [0,0,0,0,0,0,0,0,0,0,0],
-];
-const icon = document.getElementById('heroIcon');
-icon.style.gridTemplateColumns = 'repeat(11, 16px)';
-heroGrid.forEach(row => row.forEach(v => {
-  const d = document.createElement('div');
-  d.style.cssText = `width:16px;height:16px;background:${v===1?'#fff':v===2?'#444':'transparent'};`;
-  icon.appendChild(d);
-}));
-
-// Game thumbnails - pixel art placeholders
-function makeThumb(id, pattern, color) {
-  const el = document.getElementById(id);
-  const size = 8;
-  const cols = 16, rows = 9;
-  const g = document.createElement('div');
-  g.style.cssText = `display:grid;grid-template-columns:repeat(${cols},${size}px);gap:1px;image-rendering:pixelated;`;
-  for (let r = 0; r < rows; r++) {
-    for (let c = 0; c < cols; c++) {
-      const px = document.createElement('div');
-      const on = pattern(r, c, rows, cols);
-      px.style.cssText = `width:${size}px;height:${size}px;background:${on ? color : '#111'};`;
-      g.appendChild(px);
-    }
-  }
-  el.appendChild(g);
-}
-
-makeThumb('thumb2', (r,c,R,C) => {
-  return (r+c)%3===0 || r===Math.floor(R/2);
-}, '#444');
-
-// Form submit via Formspree
-document.getElementById('contactForm').addEventListener('submit', async function(e) {
-  e.preventDefault();
-  const btn = this.querySelector('.form-submit');
-  const msg = document.getElementById('formMsg');
-  btn.textContent = 'SENDING...';
-  btn.disabled = true;
-  try {
-    const res = await fetch('https://formspree.io/f/xpwzgnjq', {
-      method: 'POST',
-      headers: { 'Accept': 'application/json' },
-      body: new FormData(this)
-    });
-    if (res.ok) {
-      msg.textContent = '✓ MESSAGE SENT. WE\'LL BE IN TOUCH.';
-      msg.style.color = 'var(--grey2)';
-      msg.style.display = 'block';
-      this.reset();
-    } else {
-      msg.textContent = '✗ SOMETHING WENT WRONG. TRY AGAIN.';
-      msg.style.color = '#ff4444';
-      msg.style.display = 'block';
-    }
-  } catch {
-    msg.textContent = '✗ NETWORK ERROR. TRY AGAIN.';
-    msg.style.color = '#ff4444';
-    msg.style.display = 'block';
-  }
-  btn.textContent = 'SEND MESSAGE ▶';
-  btn.disabled = false;
-  setTimeout(() => msg.style.display = 'none', 5000);
-});
-
-// Scroll reveal
-const observer = new IntersectionObserver(entries => {
-  entries.forEach(en => {
-    if (en.isIntersecting) {
-      en.target.style.opacity = '1';
-      en.target.style.transform = 'translateY(0)';
-    }
-  });
-}, { threshold: 0.1 });
-
-document.querySelectorAll('.game-card, .stat-box, .about-text, .contact-info, .contact-form').forEach(el => {
-  el.style.cssText += 'opacity:0;transform:translateY(20px);transition:opacity 0.5s steps(4),transform 0.5s steps(4);';
-  observer.observe(el);
-});
+// Game thumbs
+function makeThumb(id,label){const el=document.getElementById(id);if(!el)return;const c=document.createElement('canvas');c.width=320;c.height=180;const ctx=c.getContext('2d');
+  ctx.fillStyle='#161616';ctx.fillRect(0,0,320,180);
+  for(let x=0;x<320;x+=20)for(let y=0;y<180;y+=20){if(Math.random()<0.07){ctx.fillStyle='rgba(255,255,255,0.05)';ctx.fillRect(x+2,y+2,16,16);}}
+  ctx.fillStyle='rgba(255,255,255,0.12)';ctx.font="7px 'Press Start 2P',monospace";ctx.textAlign='center';ctx.fillText(label,160,92);
+  c.style.cssText='width:100%;height:100%;object-fit:cover;display:block;';el.appendChild(c);}
+makeThumb('gt1','CUBICAL COMBAT VR');makeThumb('gt2','PXL DASH');makeThumb('gt3','PXL SNAKE');
 </script>
 </body>
 </html>
