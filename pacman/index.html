@@ -1,0 +1,473 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>PAC-MAN Arcade Menu</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&family=Inter:wght@400;600;800&display=swap" rel="stylesheet">
+    <style>
+        /* Classic Arcade Styling & Animations */
+        body {
+            background-color: #050508;
+            color: #ffffff;
+            font-family: 'Press Start 2P', monospace;
+            margin: 0;
+            overflow-x: hidden;
+            user-select: none;
+            -webkit-user-select: none;
+        }
+
+        /* Neon Blue Maze Frame matching the game board */
+        .maze-cabinet {
+            background-color: #000000;
+            border: 4px solid #1919b3;
+            box-shadow:
+                0 0 0 3px #000000,
+                0 0 0 6px #0000ff,
+                0 0 30px rgba(0, 0, 255, 0.45),
+                inset 0 0 24px rgba(25, 25, 179, 0.35);
+        }
+
+        .arcade-title {
+            text-shadow:
+                0 4px 0 #b45309,
+                0 0 20px rgba(250, 204, 21, 0.65);
+        }
+
+        /* Blinking "INSERT COIN / SELECT STAGE" prompt */
+        @keyframes arcadeBlink {
+            0%, 49% { opacity: 1; }
+            50%, 100% { opacity: 0.25; }
+        }
+        .blink-text {
+            animation: arcadeBlink 1.1s infinite;
+        }
+
+        /* Menu Option Row Styling */
+        .menu-link {
+            transition: transform 0.12s ease, background-color 0.12s ease, border-color 0.12s ease, box-shadow 0.12s ease;
+        }
+        .menu-link:hover,
+        .menu-link:focus,
+        .menu-link.active-choice {
+            background-color: rgba(25, 25, 179, 0.35);
+            border-color: #3b82f6;
+            box-shadow: 0 0 16px rgba(59, 130, 246, 0.5);
+            transform: translateX(4px);
+            outline: none;
+        }
+
+        .menu-link .selector-arrow {
+            opacity: 0;
+            transform: translateX(-6px);
+            transition: opacity 0.12s ease, transform 0.12s ease;
+        }
+        .menu-link:hover .selector-arrow,
+        .menu-link:focus .selector-arrow,
+        .menu-link.active-choice .selector-arrow {
+            opacity: 1;
+            transform: translateX(0);
+        }
+
+        /* CRT Scanline overlay for authentic arcade feel */
+        .scanlines {
+            background: linear-gradient(
+                to bottom,
+                rgba(255, 255, 255, 0),
+                rgba(255, 255, 255, 0) 50%,
+                rgba(0, 0, 0, 0.22) 50%,
+                rgba(0, 0, 0, 0.22)
+            );
+            background-size: 100% 4px;
+        }
+    </style>
+</head>
+<body class="min-h-screen flex flex-col items-center justify-center p-4 sm:p-6 relative">
+
+    <!-- Subtle CRT Scanline Layer -->
+    <div class="scanlines pointer-events-none fixed inset-0 z-50"></div>
+
+    <!-- Main Arcade Cabinet Container -->
+    <main class="maze-cabinet w-full max-w-xl rounded-2xl p-5 sm:p-8 flex flex-col items-center relative z-10">
+
+        <!-- Top Arcade Score Header -->
+        <div class="w-full flex justify-between items-center text-[10px] sm:text-xs text-zinc-300 mb-5 px-1">
+            <div class="flex flex-col">
+                <span class="text-red-500 mb-1">1UP</span>
+                <span>00</span>
+            </div>
+            <div class="flex flex-col items-center">
+                <span class="text-yellow-400 mb-1">HIGH SCORE</span>
+                <span>10000</span>
+            </div>
+            <div class="flex flex-col items-end">
+                <span class="text-cyan-400 mb-1">CREDIT</span>
+                <span>04</span>
+            </div>
+        </div>
+
+        <!-- Title Banner -->
+        <header class="text-center mb-5">
+            <h1 class="arcade-title text-yellow-400 text-3xl sm:text-5xl tracking-widest mb-3">
+                PAC-MAN
+            </h1>
+            <p class="blink-text text-[10px] sm:text-xs text-cyan-300 tracking-wider">
+                SELECT GHOST DIFFICULTY
+            </p>
+        </header>
+
+        <!-- Animated Pac-Man & Ghosts Chase Track Canvas -->
+        <section class="w-full mb-6 rounded-xl border-2 border-[#1919b3] bg-black overflow-hidden shadow-[inset_0_0_15px_rgba(25,25,179,0.5)]" aria-label="Animated Pac-Man and Ghosts Chase">
+            <canvas id="marqueeCanvas" class="w-full h-20 sm:h-24 block"></canvas>
+        </section>
+
+        <!-- Cast Showcase Legend -->
+        <div class="w-full grid grid-cols-4 gap-2 text-center text-[8px] sm:text-[10px] mb-6 px-1">
+            <div class="flex flex-col items-center gap-1">
+                <span class="text-[#ff0000]">BLINKY</span>
+                <span class="text-zinc-500">SHADOW</span>
+            </div>
+            <div class="flex flex-col items-center gap-1">
+                <span class="text-[#ffb8ff]">PINKY</span>
+                <span class="text-zinc-500">SPEEDY</span>
+            </div>
+            <div class="flex flex-col items-center gap-1">
+                <span class="text-[#00ffff]">INKY</span>
+                <span class="text-zinc-500">BASHFUL</span>
+            </div>
+            <div class="flex flex-col items-center gap-1">
+                <span class="text-[#ffb852]">CLYDE</span>
+                <span class="text-zinc-500">POKEY</span>
+            </div>
+        </div>
+
+        <!-- Interactive Game Mode Links (game1.html -> game4.html) -->
+        <nav id="game-menu" class="w-full flex flex-col gap-3 sm:gap-3.5" aria-label="Select Ghost Count">
+
+            <!-- Option 1: 1 Ghost -->
+            <a href="game1.html" data-index="0" class="menu-link active-choice group flex items-center justify-between w-full px-4 py-3.5 sm:px-5 sm:py-4 rounded-xl border-2 border-zinc-800 bg-zinc-950/90 text-white">
+                <div class="flex items-center gap-3">
+                    <span class="selector-arrow text-yellow-400 text-xs sm:text-sm">&#9654;</span>
+                    <span class="text-xs sm:text-sm tracking-wide group-hover:text-yellow-300">1 ghosts</span>
+                </div>
+                <div class="flex items-center gap-2" aria-hidden="true">
+                    <!-- Blinky SVG Icon -->
+                    <svg class="w-5 h-5 sm:w-6 sm:h-6" viewBox="0 0 24 24">
+                        <path fill="#ff0000" d="M12 2C7.03 2 3 6.03 3 11v9l3-2.5L9 20l3-2.5L15 20l3-2.5L21 20v-9c0-4.97-4.03-9-9-9z"/>
+                        <circle cx="9" cy="10" r="2.2" fill="#fff"/><circle cx="15" cy="10" r="2.2" fill="#fff"/>
+                        <circle cx="9.8" cy="10" r="1.1" fill="#00f"/><circle cx="15.8" cy="10" r="1.1" fill="#00f"/>
+                    </svg>
+                </div>
+            </a>
+
+            <!-- Option 2: 2 Ghosts -->
+            <a href="game2.html" data-index="1" class="menu-link group flex items-center justify-between w-full px-4 py-3.5 sm:px-5 sm:py-4 rounded-xl border-2 border-zinc-800 bg-zinc-950/90 text-white">
+                <div class="flex items-center gap-3">
+                    <span class="selector-arrow text-yellow-400 text-xs sm:text-sm">&#9654;</span>
+                    <span class="text-xs sm:text-sm tracking-wide group-hover:text-yellow-300">2 ghosts</span>
+                </div>
+                <div class="flex items-center gap-1.5" aria-hidden="true">
+                    <!-- Blinky -->
+                    <svg class="w-5 h-5 sm:w-6 sm:h-6" viewBox="0 0 24 24">
+                        <path fill="#ff0000" d="M12 2C7.03 2 3 6.03 3 11v9l3-2.5L9 20l3-2.5L15 20l3-2.5L21 20v-9c0-4.97-4.03-9-9-9z"/>
+                        <circle cx="9" cy="10" r="2.2" fill="#fff"/><circle cx="15" cy="10" r="2.2" fill="#fff"/>
+                        <circle cx="9.8" cy="10" r="1.1" fill="#00f"/><circle cx="15.8" cy="10" r="1.1" fill="#00f"/>
+                    </svg>
+                    <!-- Pinky -->
+                    <svg class="w-5 h-5 sm:w-6 sm:h-6" viewBox="0 0 24 24">
+                        <path fill="#ffb8ff" d="M12 2C7.03 2 3 6.03 3 11v9l3-2.5L9 20l3-2.5L15 20l3-2.5L21 20v-9c0-4.97-4.03-9-9-9z"/>
+                        <circle cx="9" cy="10" r="2.2" fill="#fff"/><circle cx="15" cy="10" r="2.2" fill="#fff"/>
+                        <circle cx="9.8" cy="10" r="1.1" fill="#00f"/><circle cx="15.8" cy="10" r="1.1" fill="#00f"/>
+                    </svg>
+                </div>
+            </a>
+
+            <!-- Option 3: 3 Ghosts -->
+            <a href="game3.html" data-index="2" class="menu-link group flex items-center justify-between w-full px-4 py-3.5 sm:px-5 sm:py-4 rounded-xl border-2 border-zinc-800 bg-zinc-950/90 text-white">
+                <div class="flex items-center gap-3">
+                    <span class="selector-arrow text-yellow-400 text-xs sm:text-sm">&#9654;</span>
+                    <span class="text-xs sm:text-sm tracking-wide group-hover:text-yellow-300">3 ghosts</span>
+                </div>
+                <div class="flex items-center gap-1.5" aria-hidden="true">
+                    <!-- Blinky -->
+                    <svg class="w-5 h-5 sm:w-6 sm:h-6" viewBox="0 0 24 24">
+                        <path fill="#ff0000" d="M12 2C7.03 2 3 6.03 3 11v9l3-2.5L9 20l3-2.5L15 20l3-2.5L21 20v-9c0-4.97-4.03-9-9-9z"/>
+                        <circle cx="9" cy="10" r="2.2" fill="#fff"/><circle cx="15" cy="10" r="2.2" fill="#fff"/>
+                        <circle cx="9.8" cy="10" r="1.1" fill="#00f"/><circle cx="15.8" cy="10" r="1.1" fill="#00f"/>
+                    </svg>
+                    <!-- Pinky -->
+                    <svg class="w-5 h-5 sm:w-6 sm:h-6" viewBox="0 0 24 24">
+                        <path fill="#ffb8ff" d="M12 2C7.03 2 3 6.03 3 11v9l3-2.5L9 20l3-2.5L15 20l3-2.5L21 20v-9c0-4.97-4.03-9-9-9z"/>
+                        <circle cx="9" cy="10" r="2.2" fill="#fff"/><circle cx="15" cy="10" r="2.2" fill="#fff"/>
+                        <circle cx="9.8" cy="10" r="1.1" fill="#00f"/><circle cx="15.8" cy="10" r="1.1" fill="#00f"/>
+                    </svg>
+                    <!-- Inky -->
+                    <svg class="w-5 h-5 sm:w-6 sm:h-6" viewBox="0 0 24 24">
+                        <path fill="#00ffff" d="M12 2C7.03 2 3 6.03 3 11v9l3-2.5L9 20l3-2.5L15 20l3-2.5L21 20v-9c0-4.97-4.03-9-9-9z"/>
+                        <circle cx="9" cy="10" r="2.2" fill="#fff"/><circle cx="15" cy="10" r="2.2" fill="#fff"/>
+                        <circle cx="9.8" cy="10" r="1.1" fill="#00f"/><circle cx="15.8" cy="10" r="1.1" fill="#00f"/>
+                    </svg>
+                </div>
+            </a>
+
+            <!-- Option 4: 4 Ghosts -->
+            <a href="game4.html" data-index="3" class="menu-link group flex items-center justify-between w-full px-4 py-3.5 sm:px-5 sm:py-4 rounded-xl border-2 border-zinc-800 bg-zinc-950/90 text-white">
+                <div class="flex items-center gap-3">
+                    <span class="selector-arrow text-yellow-400 text-xs sm:text-sm">&#9654;</span>
+                    <span class="text-xs sm:text-sm tracking-wide group-hover:text-yellow-300">4 ghosts</span>
+                </div>
+                <div class="flex items-center gap-1.5" aria-hidden="true">
+                    <!-- Blinky -->
+                    <svg class="w-5 h-5 sm:w-6 sm:h-6" viewBox="0 0 24 24">
+                        <path fill="#ff0000" d="M12 2C7.03 2 3 6.03 3 11v9l3-2.5L9 20l3-2.5L15 20l3-2.5L21 20v-9c0-4.97-4.03-9-9-9z"/>
+                        <circle cx="9" cy="10" r="2.2" fill="#fff"/><circle cx="15" cy="10" r="2.2" fill="#fff"/>
+                        <circle cx="9.8" cy="10" r="1.1" fill="#00f"/><circle cx="15.8" cy="10" r="1.1" fill="#00f"/>
+                    </svg>
+                    <!-- Pinky -->
+                    <svg class="w-5 h-5 sm:w-6 sm:h-6" viewBox="0 0 24 24">
+                        <path fill="#ffb8ff" d="M12 2C7.03 2 3 6.03 3 11v9l3-2.5L9 20l3-2.5L15 20l3-2.5L21 20v-9c0-4.97-4.03-9-9-9z"/>
+                        <circle cx="9" cy="10" r="2.2" fill="#fff"/><circle cx="15" cy="10" r="2.2" fill="#fff"/>
+                        <circle cx="9.8" cy="10" r="1.1" fill="#00f"/><circle cx="15.8" cy="10" r="1.1" fill="#00f"/>
+                    </svg>
+                    <!-- Inky -->
+                    <svg class="w-5 h-5 sm:w-6 sm:h-6" viewBox="0 0 24 24">
+                        <path fill="#00ffff" d="M12 2C7.03 2 3 6.03 3 11v9l3-2.5L9 20l3-2.5L15 20l3-2.5L21 20v-9c0-4.97-4.03-9-9-9z"/>
+                        <circle cx="9" cy="10" r="2.2" fill="#fff"/><circle cx="15" cy="10" r="2.2" fill="#fff"/>
+                        <circle cx="9.8" cy="10" r="1.1" fill="#00f"/><circle cx="15.8" cy="10" r="1.1" fill="#00f"/>
+                    </svg>
+                    <!-- Clyde -->
+                    <svg class="w-5 h-5 sm:w-6 sm:h-6" viewBox="0 0 24 24">
+                        <path fill="#ffb852" d="M12 2C7.03 2 3 6.03 3 11v9l3-2.5L9 20l3-2.5L15 20l3-2.5L21 20v-9c0-4.97-4.03-9-9-9z"/>
+                        <circle cx="9" cy="10" r="2.2" fill="#fff"/><circle cx="15" cy="10" r="2.2" fill="#fff"/>
+                        <circle cx="9.8" cy="10" r="1.1" fill="#00f"/><circle cx="15.8" cy="10" r="1.1" fill="#00f"/>
+                    </svg>
+                </div>
+            </a>
+
+        </nav>
+
+        <!-- Footer Controls Hint -->
+        <footer class="mt-6 text-center text-[9px] sm:text-[10px] text-zinc-400 leading-relaxed">
+            <p>USE <span class="text-yellow-400">UP / DOWN</span> ARROWS &amp; <span class="text-yellow-400">ENTER</span> OR CLICK TO START</p>
+        </footer>
+    </main>
+
+    <script>
+        /**
+         * Animated Pac-Man & 4-Ghost Marquee Track + Keyboard Menu Navigation
+         */
+        (function () {
+            // --- 1. Keyboard & Hover Navigation for Menu Links ---
+            var menuLinks = Array.prototype.slice.call(document.querySelectorAll(".menu-link"));
+            var selectedIndex = 0;
+
+            function setSelectedIndex(index) {
+                if (index < 0) index = menuLinks.length - 1;
+                if (index >= menuLinks.length) index = 0;
+                selectedIndex = index;
+
+                menuLinks.forEach(function (link, idx) {
+                    if (idx === selectedIndex) {
+                        link.classList.add("active-choice");
+                    } else {
+                        link.classList.remove("active-choice");
+                    }
+                });
+            }
+
+            menuLinks.forEach(function (link, idx) {
+                link.addEventListener("mouseenter", function () {
+                    setSelectedIndex(idx);
+                });
+                link.addEventListener("focus", function () {
+                    setSelectedIndex(idx);
+                });
+            });
+
+            window.addEventListener("keydown", function (e) {
+                if (e.key === "ArrowDown" || e.key === "s" || e.key === "S") {
+                    e.preventDefault();
+                    setSelectedIndex(selectedIndex + 1);
+                } else if (e.key === "ArrowUp" || e.key === "w" || e.key === "W") {
+                    e.preventDefault();
+                    setSelectedIndex(selectedIndex - 1);
+                } else if (e.key === "Enter" || e.key === " ") {
+                    if (document.activeElement && document.activeElement.classList.contains("menu-link")) {
+                        return; // Native link activation handles it
+                    }
+                    e.preventDefault();
+                    menuLinks[selectedIndex].click();
+                }
+            });
+
+            // --- 2. Responsive Marquee Canvas with Chomping Pac-Man & Moving Ghosts ---
+            var canvas = document.getElementById("marqueeCanvas");
+            var ctx = canvas.getContext("2d");
+
+            var ghostColors = ["#ff0000", "#ffb8ff", "#00ffff", "#ffb852"];
+            var dotSpacing = 26;
+            var dots = [];
+            var frameCount = 0;
+
+            // Entities state
+            var direction = 1; // 1 = moving right (ghosts chase Pac-Man), -1 = moving left (Pac-Man chases scared ghosts!)
+            var speed = 2.1;
+            var pacmanX = 180;
+            var ghostSpacing = 34;
+
+            function resizeCanvas() {
+                var rect = canvas.getBoundingClientRect();
+                var dpr = window.devicePixelRatio || 1;
+                canvas.width = Math.floor(rect.width * dpr);
+                canvas.height = Math.floor(rect.height * dpr);
+                ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+
+                // Rebuild glowing pellets across width
+                dots = [];
+                for (var x = dotSpacing; x < rect.width - dotSpacing / 2; x += dotSpacing) {
+                    dots.push({ x: x, eaten: false });
+                }
+            }
+
+            function drawGhost(x, y, radius, color, dir, isFrightened) {
+                ctx.save();
+                ctx.fillStyle = isFrightened ? "#1d4ed8" : color;
+                ctx.beginPath();
+                // Dome head
+                ctx.arc(x, y - 2, radius, Math.PI, 0, false);
+                // Right side
+                ctx.lineTo(x + radius, y + radius);
+                // Wavy skirt (animated)
+                var wave = Math.sin(frameCount * 0.25 + x * 0.1) * 1.5;
+                ctx.lineTo(x + radius * 0.5, y + radius - 3 + wave);
+                ctx.lineTo(x, y + radius - wave);
+                ctx.lineTo(x - radius * 0.5, y + radius - 3 + wave);
+                ctx.lineTo(x - radius, y + radius);
+                ctx.closePath();
+                ctx.fill();
+
+                if (isFrightened) {
+                    // Frightened eyes & wavy mouth
+                    ctx.fillStyle = "#ffb8ae";
+                    ctx.beginPath();
+                    ctx.arc(x - 4, y - 2, 1.8, 0, Math.PI * 2);
+                    ctx.arc(x + 4, y - 2, 1.8, 0, Math.PI * 2);
+                    ctx.fill();
+
+                    ctx.strokeStyle = "#ffb8ae";
+                    ctx.lineWidth = 1.5;
+                    ctx.beginPath();
+                    ctx.moveTo(x - 6, y + 4);
+                    ctx.lineTo(x - 3, y + 2);
+                    ctx.lineTo(x, y + 4);
+                    ctx.lineTo(x + 3, y + 2);
+                    ctx.lineTo(x + 6, y + 4);
+                    ctx.stroke();
+                } else {
+                    // Normal white sclera + directional blue pupils
+                    var lookX = dir * 2.2;
+                    ctx.fillStyle = "#ffffff";
+                    ctx.beginPath();
+                    ctx.arc(x - 4 + lookX * 0.4, y - 2, 3.2, 0, Math.PI * 2);
+                    ctx.arc(x + 4 + lookX * 0.4, y - 2, 3.2, 0, Math.PI * 2);
+                    ctx.fill();
+
+                    ctx.fillStyle = "#0000aa";
+                    ctx.beginPath();
+                    ctx.arc(x - 4 + lookX, y - 2, 1.6, 0, Math.PI * 2);
+                    ctx.arc(x + 4 + lookX, y - 2, 1.6, 0, Math.PI * 2);
+                    ctx.fill();
+                }
+                ctx.restore();
+            }
+
+            function drawPacman(x, y, radius, dir) {
+                var mouthAngle = (Math.sin(frameCount * 0.28) + 1) * 0.22 + 0.04;
+                var baseAngle = dir === 1 ? 0 : Math.PI;
+
+                ctx.save();
+                ctx.fillStyle = "#ffff00";
+                ctx.shadowColor = "rgba(255, 255, 0, 0.55)";
+                ctx.shadowBlur = 10;
+                ctx.beginPath();
+                ctx.arc(x, y, radius, baseAngle + mouthAngle, baseAngle + Math.PI * 2 - mouthAngle);
+                ctx.lineTo(x, y);
+                ctx.closePath();
+                ctx.fill();
+                ctx.restore();
+            }
+
+            function animateMarquee() {
+                var rect = canvas.getBoundingClientRect();
+                var w = rect.width;
+                var h = rect.height;
+                var centerY = h / 2;
+
+                ctx.clearRect(0, 0, w, h);
+
+                // Subtle top & bottom inner neon guide rails
+                ctx.strokeStyle = "rgba(25, 25, 179, 0.55)";
+                ctx.lineWidth = 2;
+                ctx.beginPath();
+                ctx.moveTo(0, 8);
+                ctx.lineTo(w, 8);
+                ctx.moveTo(0, h - 8);
+                ctx.lineTo(w, h - 8);
+                ctx.stroke();
+
+                // Update Pac-Man position
+                pacmanX += direction * speed;
+
+                // Reverse direction at edges for continuous arcade chase loop
+                var trainLength = ghostColors.length * ghostSpacing + 28;
+                if (direction === 1 && pacmanX > w + 24) {
+                    direction = -1;
+                    // Reset pellets for return run
+                    dots.forEach(function (d) { d.eaten = false; });
+                    // Draw power pellet on left side
+                } else if (direction === -1 && pacmanX < -trainLength) {
+                    direction = 1;
+                    dots.forEach(function (d) { d.eaten = false; });
+                }
+
+                // Draw & eat pellets
+                for (var i = 0; i < dots.length; i++) {
+                    var dot = dots[i];
+                    if (direction === 1 && Math.abs(pacmanX - dot.x) < 12) {
+                        dot.eaten = true;
+                    }
+                    if (!dot.eaten) {
+                        var isPowerPellet = (i === 1);
+                        ctx.fillStyle = "#ffb8ae";
+                        ctx.beginPath();
+                        var dotRadius = isPowerPellet ? (4.5 + Math.sin(frameCount * 0.15) * 1.2) : 2.8;
+                        ctx.arc(dot.x, centerY, dotRadius, 0, Math.PI * 2);
+                        ctx.fill();
+                    }
+                }
+
+                // Draw Pac-Man
+                drawPacman(pacmanX, centerY, 13, direction);
+
+                // Draw the 4 Ghosts trailing or fleeing
+                var isFrightened = (direction === -1);
+                for (var g = 0; g < ghostColors.length; g++) {
+                    var offset = (g + 1) * ghostSpacing + 10;
+                    var ghostX = direction === 1 ? (pacmanX - offset) : (pacmanX + offset);
+                    drawGhost(ghostX, centerY, 12.5, ghostColors[g], direction, isFrightened);
+                }
+
+                frameCount++;
+                requestAnimationFrame(animateMarquee);
+            }
+
+            window.addEventListener("resize", resizeCanvas);
+            window.onload = function () {
+                resizeCanvas();
+                animateMarquee();
+            };
+        })();
+    </script>
+</body>
+</html>

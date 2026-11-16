@@ -1,0 +1,362 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>PAC-MAN - 3 Ghosts</title>
+    <style>
+        body {
+            background-color: #050508;
+            color: white;
+            font-family: 'Courier New', Courier, monospace;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            height: 100vh;
+            margin: 0;
+        }
+        #hud {
+            width: 380px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-size: 18px;
+            font-weight: bold;
+            margin-bottom: 10px;
+            letter-spacing: 1px;
+        }
+        #hud a {
+            color: #00ffff;
+            text-decoration: none;
+            font-size: 14px;
+            border: 1px solid #00ffff;
+            padding: 4px 8px;
+            border-radius: 4px;
+        }
+        #hud a:hover {
+            background-color: #00ffff;
+            color: #000;
+        }
+        canvas {
+            border: 4px solid #1919ff;
+            border-radius: 8px;
+            background-color: #000;
+            box-shadow: 0 0 25px rgba(25, 25, 255, 0.45);
+        }
+    </style>
+</head>
+<body>
+
+    <div id="hud">
+        <span>1UP: <span id="score" style="color:#ffff00;">0</span></span>
+        <a href="index.html">← MENU</a>
+    </div>
+    <canvas id="gameCanvas" width="380" height="400"></canvas>
+
+    <script>
+        var canvas = document.getElementById("gameCanvas");
+        var ctx = canvas.getContext("2d");
+        var scoreElement = document.getElementById("score");
+
+        var tileSize = 20;
+        var score = 0;
+        var gameOver = false;
+        var gameWon = false;
+        var frameCount = 0;
+
+        var mapLayout = [
+            "1111111111111111111",
+            "1000000001000000001",
+            "1011011101011101101",
+            "1000000000000000001",
+            "1011010111110101101",
+            "1000010001000100001",
+            "1111011121211101111",
+            "2221012222222101222",
+            "1111012112112101111",
+            "2222022122212202222",
+            "1111012111112101111",
+            "2221012222222101222",
+            "1111012111112101111",
+            "1000000001000000001",
+            "1011011101011101101",
+            "1001000002000001001",
+            "1101012111112101011",
+            "1000010001000100001",
+            "1011111101011111101",
+            "1111111111111111111"
+        ];
+
+        var map = [];
+        for (var r = 0; r < mapLayout.length; r++) {
+            map[r] = [];
+            for (var c = 0; c < mapLayout[r].length; c++) {
+                map[r][c] = parseInt(mapLayout[r].charAt(c));
+            }
+        }
+
+        var pacman = {
+            x: 9 * tileSize,
+            y: 15 * tileSize,
+            radius: 8,
+            speed: 2,
+            dirX: 0,
+            dirY: 0,
+            nextDirX: 0,
+            nextDirY: 0
+        };
+
+        // 3 Ghosts: Blinky (Red), Pinky (Pink), and Inky (Cyan)
+        var ghosts = [
+            { x: 9 * tileSize,  y: 7 * tileSize, radius: 8, speed: 2, dirX: 1,  dirY: 0, color: "#ff0000" }, // Blinky
+            { x: 8 * tileSize,  y: 7 * tileSize, radius: 8, speed: 2, dirX: -1, dirY: 0, color: "#ffb8ff" }, // Pinky
+            { x: 10 * tileSize, y: 7 * tileSize, radius: 8, speed: 2, dirX: 1,  dirY: 0, color: "#00ffff" }  // Inky
+        ];
+
+        window.addEventListener("keydown", function(e) {
+            if(["ArrowUp","ArrowDown","ArrowLeft","ArrowRight"," "].indexOf(e.key) > -1) {
+                e.preventDefault(); 
+            }
+            if (e.key === " " && (gameOver || gameWon)) {
+                location.reload();
+            }
+            switch(e.key) {
+                case "ArrowUp":    pacman.nextDirX = 0;  pacman.nextDirY = -1; break;
+                case "ArrowDown":  pacman.nextDirX = 0;  pacman.nextDirY = 1;  break;
+                case "ArrowLeft":  pacman.nextDirX = -1; pacman.nextDirY = 0;  break;
+                case "ArrowRight": pacman.nextDirX = 1;  pacman.nextDirY = 0;  break;
+            }
+        });
+
+        function isWallAt(tileX, tileY) {
+            if (tileX < 0 || tileX >= mapLayout[0].length) return false;
+            if (tileY < 0 || tileY >= map.length) return true;
+            return map[tileY][tileX] === 1;
+        }
+
+        function updatePacman() {
+            if (pacman.x % tileSize === 0 && pacman.y % tileSize === 0) {
+                var currentTileX = Math.floor(pacman.x / tileSize);
+                var currentTileY = Math.floor(pacman.y / tileSize);
+
+                if (map[currentTileY] && map[currentTileY][currentTileX] === 0) {
+                    map[currentTileY][currentTileX] = 2; 
+                    score += 10;
+                    scoreElement.innerText = score;
+                    checkWinCondition();
+                }
+
+                if (!isWallAt(currentTileX + pacman.nextDirX, currentTileY + pacman.nextDirY)) {
+                    pacman.dirX = pacman.nextDirX;
+                    pacman.dirY = pacman.nextDirY;
+                }
+
+                if (isWallAt(currentTileX + pacman.dirX, currentTileY + pacman.dirY)) {
+                    pacman.dirX = 0;
+                    pacman.dirY = 0;
+                }
+            }
+
+            pacman.x += pacman.dirX * pacman.speed;
+            pacman.y += pacman.dirY * pacman.speed;
+
+            if (pacman.x < 0) pacman.x = canvas.width - tileSize;
+            if (pacman.x >= canvas.width) pacman.x = 0;
+        }
+
+        function updateGhosts() {
+            for (var g = 0; g < ghosts.length; g++) {
+                var ghost = ghosts[g];
+                if (ghost.x % tileSize === 0 && ghost.y % tileSize === 0) {
+                    var currentTileX = Math.floor(ghost.x / tileSize);
+                    var currentTileY = Math.floor(ghost.y / tileSize);
+
+                    var directions = [
+                        {x: 1, y: 0}, {x: -1, y: 0},
+                        {x: 0, y: 1}, {x: 0, y: -1}
+                    ];
+                    
+                    var validDirs = [];
+                    for (var i = 0; i < directions.length; i++) {
+                        var d = directions[i];
+                        if (d.x === -ghost.dirX && d.y === -ghost.dirY) continue;
+                        if (!isWallAt(currentTileX + d.x, currentTileY + d.y)) {
+                            validDirs.push(d);
+                        }
+                    }
+
+                    if (validDirs.length === 0) {
+                        if (!isWallAt(currentTileX - ghost.dirX, currentTileY - ghost.dirY)) {
+                            ghost.dirX = -ghost.dirX;
+                            ghost.dirY = -ghost.dirY;
+                        }
+                    } else {
+                        var chosen = validDirs[Math.floor(Math.random() * validDirs.length)];
+                        ghost.dirX = chosen.x;
+                        ghost.dirY = chosen.y;
+                    }
+                }
+
+                ghost.x += ghost.dirX * ghost.speed;
+                ghost.y += ghost.dirY * ghost.speed;
+
+                if (ghost.x < 0) ghost.x = canvas.width - tileSize;
+                if (ghost.x >= canvas.width) ghost.x = 0;
+            }
+        }
+
+        function checkCollisions() {
+            for (var g = 0; g < ghosts.length; g++) {
+                var ghost = ghosts[g];
+                var dist = Math.hypot((pacman.x + tileSize/2) - (ghost.x + tileSize/2), (pacman.y + tileSize/2) - (ghost.y + tileSize/2));
+                if (dist < pacman.radius + ghost.radius - 2) {
+                    gameOver = true;
+                }
+            }
+        }
+
+        function checkWinCondition() {
+            for (var row = 0; row < map.length; row++) {
+                if (map[row].indexOf(0) > -1) return;
+            }
+            gameWon = true;
+        }
+
+        function drawMap() {
+            ctx.strokeStyle = "#2121ff";
+            ctx.lineWidth = 2;
+
+            for (var r = 0; r < map.length; r++) {
+                for (var c = 0; c < map[r].length; c++) {
+                    var x = c * tileSize;
+                    var y = r * tileSize;
+
+                    if (map[r][c] === 1) {
+                        ctx.fillStyle = "#060628";
+                        ctx.fillRect(x, y, tileSize, tileSize);
+
+                        var topOpen    = r > 0 && map[r - 1][c] !== 1;
+                        var bottomOpen = r < map.length - 1 && map[r + 1][c] !== 1;
+                        var leftOpen   = c > 0 && map[r][c - 1] !== 1;
+                        var rightOpen  = c < map[r].length - 1 && map[r][c + 1] !== 1;
+
+                        ctx.beginPath();
+                        if (topOpen)    { ctx.moveTo(x, y + 1); ctx.lineTo(x + tileSize, y + 1); }
+                        if (bottomOpen) { ctx.moveTo(x, y + tileSize - 1); ctx.lineTo(x + tileSize, y + tileSize - 1); }
+                        if (leftOpen)   { ctx.moveTo(x + 1, y); ctx.lineTo(x + 1, y + tileSize); }
+                        if (rightOpen)  { ctx.moveTo(x + tileSize - 1, y); ctx.lineTo(x + tileSize - 1, y + tileSize); }
+                        ctx.stroke();
+                    } else if (map[r][c] === 0) {
+                        ctx.fillStyle = "#ffb8ae";
+                        ctx.beginPath();
+                        ctx.arc(x + tileSize/2, y + tileSize/2, 2.5, 0, Math.PI * 2);
+                        ctx.fill();
+                    }
+                }
+            }
+        }
+
+        function drawPacman() {
+            var cx = pacman.x + tileSize / 2;
+            var cy = pacman.y + tileSize / 2;
+
+            var rotation = 0;
+            if (pacman.dirX === 1) rotation = 0;
+            else if (pacman.dirX === -1) rotation = Math.PI;
+            else if (pacman.dirY === 1) rotation = Math.PI * 0.5;
+            else if (pacman.dirY === -1) rotation = Math.PI * 1.5;
+
+            var mouthAngle = (pacman.dirX !== 0 || pacman.dirY !== 0)
+                ? 0.05 + Math.abs(Math.sin(frameCount * 0.25)) * 0.32
+                : 0.2;
+
+            ctx.fillStyle = "#ffff00";
+            ctx.beginPath();
+            ctx.arc(cx, cy, pacman.radius, rotation + mouthAngle, rotation + Math.PI * 2 - mouthAngle);
+            ctx.lineTo(cx, cy);
+            ctx.closePath();
+            ctx.fill();
+        }
+
+        function drawGhosts() {
+            for (var g = 0; g < ghosts.length; g++) {
+                var ghost = ghosts[g];
+                var cx = ghost.x + tileSize / 2;
+                var cy = ghost.y + tileSize / 2;
+                var r = ghost.radius;
+
+                ctx.fillStyle = ghost.color;
+                ctx.beginPath();
+                ctx.arc(cx, cy - 1, r, Math.PI, 0, false);
+                ctx.lineTo(cx + r, cy + r);
+                ctx.lineTo(cx + r * 0.5, cy + r - 2.5);
+                ctx.lineTo(cx, cy + r);
+                ctx.lineTo(cx - r * 0.5, cy + r - 2.5);
+                ctx.lineTo(cx - r, cy + r);
+                ctx.closePath();
+                ctx.fill();
+
+                var eyeOffsetX = ghost.dirX * 1.5;
+                var eyeOffsetY = ghost.dirY * 1.5;
+                ctx.fillStyle = "#ffffff";
+                ctx.beginPath();
+                ctx.arc(cx - 3 + eyeOffsetX * 0.5, cy - 2 + eyeOffsetY * 0.5, 2.4, 0, Math.PI * 2);
+                ctx.arc(cx + 3 + eyeOffsetX * 0.5, cy - 2 + eyeOffsetY * 0.5, 2.4, 0, Math.PI * 2);
+                ctx.fill();
+
+                ctx.fillStyle = "#0000cc";
+                ctx.beginPath();
+                ctx.arc(cx - 3 + eyeOffsetX, cy - 2 + eyeOffsetY, 1.2, 0, Math.PI * 2);
+                ctx.arc(cx + 3 + eyeOffsetX, cy - 2 + eyeOffsetY, 1.2, 0, Math.PI * 2);
+                ctx.fill();
+            }
+        }
+
+        function gameLoop() {
+            frameCount++;
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+            drawMap();
+            
+            if (!gameOver && !gameWon) {
+                updatePacman();
+                updateGhosts();
+                checkCollisions();
+            }
+
+            drawPacman();
+            drawGhosts();
+
+            if (gameOver) {
+                ctx.fillStyle = "rgba(0, 0, 0, 0.75)";
+                ctx.fillRect(0, canvas.height/2 - 35, canvas.width, 60);
+                ctx.fillStyle = "#ff2a2a";
+                ctx.font = "bold 24px 'Courier New', monospace";
+                ctx.textAlign = "center";
+                ctx.fillText("GAME OVER", canvas.width / 2, canvas.height / 2 - 2);
+                ctx.fillStyle = "#ffffff";
+                ctx.font = "12px 'Courier New', monospace";
+                ctx.fillText("Press Space to Retry", canvas.width / 2, canvas.height / 2 + 20);
+                return;
+            }
+
+            if (gameWon) {
+                ctx.fillStyle = "rgba(0, 0, 0, 0.75)";
+                ctx.fillRect(0, canvas.height/2 - 35, canvas.width, 60);
+                ctx.fillStyle = "#00ff66";
+                ctx.font = "bold 24px 'Courier New', monospace";
+                ctx.textAlign = "center";
+                ctx.fillText("STAGE CLEAR!", canvas.width / 2, canvas.height / 2 - 2);
+                ctx.fillStyle = "#ffffff";
+                ctx.font = "12px 'Courier New', monospace";
+                ctx.fillText("Press Space to Play Again", canvas.width / 2, canvas.height / 2 + 20);
+                return;
+            }
+
+            requestAnimationFrame(gameLoop);
+        }
+
+        gameLoop();
+    </script>
+</body>
+</html>
