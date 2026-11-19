@@ -58,7 +58,7 @@ nav ul a:hover::after, nav ul a.active::after { width: calc(100% - 26px); }
 .section { max-width: var(--page-max); margin: 0 auto; padding: 40px 32px 80px; }
 .featured { display: grid; grid-template-columns: 1.3fr 1fr; background: var(--surface); border: 1px solid var(--border); border-radius: 16px; overflow: hidden; margin-bottom: 16px; }
 .featured-img { background: var(--surface2); min-height: 340px; position: relative; overflow: hidden; }
-.featured-img canvas { width: 100%; height: 100%; display: block; object-fit: cover; position: absolute; inset: 0; }
+.featured-img img, .featured-img canvas { width: 100%; height: 100%; display: block; object-fit: cover; position: absolute; inset: 0; }
 .featured-body { padding: 40px; display: flex; flex-direction: column; justify-content: center; gap: 14px; }
 .tag { font-size: 12px; font-weight: 600; color: var(--grey3); text-transform: uppercase; letter-spacing: 0.06em; }
 .featured-title { font-size: clamp(26px,3vw,38px); font-weight: 800; letter-spacing: -0.02em; line-height: 1.15; }
@@ -116,9 +116,9 @@ footer { border-top: 1px solid var(--border); }
     <nav><ul>
       <li><a href="index.html">Home</a></li>
       <li><a href="games.html" class="active">Games</a></li>
-      <li><a href="devlog.html">Devlog</a></li>
+      <li><a href="index.html#news">Devlog</a></li>
       <li><a href="index.html#community">Community</a></li>
-      <li><a href="merch.html">Merch</a></li>
+      <li><a href="#">Merch</a></li>
     </ul></nav>
     <div class="nav-right">
       <a class="nav-social" href="https://discord.gg/RzZQqpJEzV">DC</a>
@@ -149,10 +149,10 @@ footer { border-top: 1px solid var(--border); }
 
   <!-- FEATURED -->
   <div class="featured">
-    <div class="featured-img"><canvas id="featCanvas" width="640" height="400"></canvas></div>
+    <div class="featured-img"><img src="cubical-vr.jpg" alt="Cubical VR gameplay"></div>
     <div class="featured-body">
       <div class="tag">Flagship · VR · Unreal Engine 5</div>
-      <h2 class="featured-title">Cubical Combat VR</h2>
+      <h2 class="featured-title">Cubical VR</h2>
       <p class="featured-desc">Fast-paced VR combat in fully destructible cube environments. Punch, grab, throw and boost your way through arenas built from cubes.</p>
       <div class="chips"><span class="chip">PC VR</span><span class="chip">Meta Quest</span><span class="chip">Pre-Alpha</span></div>
       <div class="btn-row">
@@ -169,7 +169,7 @@ footer { border-top: 1px solid var(--border); }
       <div class="game-thumb" id="t1"></div>
       <div class="game-body">
         <div class="tag">PC VR · Meta Quest</div>
-        <div class="game-name">Cubical Combat VR</div>
+        <div class="game-name">Cubical VR</div>
         <p class="game-desc">Physics-based VR combat in destructible cube arenas.</p>
         <div class="game-foot"><span class="pill"><span class="pill-dot"></span>In Development</span><a class="play-link muted">Coming soon</a></div>
       </div>
@@ -229,27 +229,6 @@ document.querySelectorAll('.filter').forEach(b=>b.addEventListener('click',()=>{
   document.querySelectorAll('.game-card').forEach(c=>c.classList.toggle('hide',f!=='all'&&!c.dataset.cat.split(' ').includes(f)));
 }));
 
-// Featured canvas
-(function(){
-  const c=document.getElementById('featCanvas'),ctx=c.getContext('2d');let f=0;
-  const cubes=[[60,220,70],[170,170,90],[300,200,80],[430,150,100],[540,230,60],[240,60,50],[480,50,60]];
-  function draw(){
-    ctx.fillStyle='#161616';ctx.fillRect(0,0,640,400);
-    ctx.strokeStyle='rgba(255,255,255,0.035)';
-    for(let x=0;x<640;x+=32){ctx.beginPath();ctx.moveTo(x,0);ctx.lineTo(x,400);ctx.stroke();}
-    for(let y=0;y<400;y+=32){ctx.beginPath();ctx.moveTo(0,y);ctx.lineTo(640,y);ctx.stroke();}
-    cubes.forEach(([x,y,s],i)=>{const o=Math.sin(f*0.03+i)*6;const g=34+i*7;
-      ctx.fillStyle=`rgb(${g},${g},${g})`;ctx.fillRect(x,y+o,s,s);
-      ctx.fillStyle=`rgb(${g+16},${g+16},${g+16})`;ctx.fillRect(x,y+o,s,4);
-      ctx.fillStyle=`rgb(${g-8},${g-8},${g-8})`;ctx.fillRect(x+s-5,y+o,5,s);});
-    ctx.fillStyle='#161616';ctx.fillRect(0,330,640,70);
-    ctx.fillStyle='rgba(255,255,255,0.1)';ctx.fillRect(0,330,640,2);
-    ctx.fillStyle='rgba(255,255,255,0.08)';ctx.font="bold 14px 'Press Start 2P',monospace";ctx.textAlign='center';ctx.fillText('CUBICAL COMBAT VR',320,372);
-    f++;requestAnimationFrame(draw);
-  }
-  draw();
-})();
-
 // Thumbs
 function thumb(id,label,fn){
   const el=document.getElementById(id);if(!el)return;
@@ -262,7 +241,7 @@ function thumb(id,label,fn){
   ctx.fillStyle='rgba(255,255,255,0.14)';ctx.font="8px 'Press Start 2P',monospace";ctx.textAlign='center';ctx.fillText(label,160,164);
   c.style.cssText='width:100%;height:100%;object-fit:cover;display:block;';el.appendChild(c);
 }
-thumb('t1','CUBICAL COMBAT VR',ctx=>{[[70,60,50],[140,40,64],[220,70,44]].forEach(([x,y,s],i)=>{const g=40+i*10;ctx.fillStyle=`rgb(${g},${g},${g})`;ctx.fillRect(x,y,s,s);ctx.fillStyle=`rgb(${g+16},${g+16},${g+16})`;ctx.fillRect(x,y,s,3);});});
+(function(){const el=document.getElementById('t1');if(!el)return;const i=new Image();i.src='cubical-vr.jpg';i.alt='Cubical VR';i.style.cssText='width:100%;height:100%;object-fit:cover;display:block;';el.appendChild(i);})();
 thumb('t2','PXL DASH',ctx=>{ctx.fillStyle='#222';ctx.fillRect(0,120,320,60);ctx.fillStyle='#f87171';[[100,92,14,28],[200,104,14,16]].forEach(([x,y,w,h])=>{ctx.fillStyle='#2e2e2e';ctx.fillRect(x,y,w,h);ctx.fillStyle='#f87171';ctx.fillRect(x,y,w,2);});ctx.fillStyle='#eee';ctx.fillRect(50,96,16,24);ctx.fillStyle='#333';ctx.fillRect(52,90,12,6);ctx.fillStyle='#111';ctx.fillRect(54,102,3,3);ctx.fillRect(60,102,3,3);});
 thumb('t3','PXL SNAKE',ctx=>{for(let i=0;i<9;i++){const v=255-i*18;ctx.fillStyle=`rgb(${v},${v},${v})`;ctx.fillRect(70+i*16,70,14,14);}for(let i=0;i<4;i++){ctx.fillStyle='#bbb';ctx.fillRect(214,70+(i+1)*16,14,14);}ctx.fillStyle='#e05555';ctx.fillRect(110,40,12,12);});
 thumb('t4','PXL MAZE',ctx=>{ctx.fillStyle='#2a2a2a';[[40,40,240,10],[40,120,240,10],[40,40,10,90],[270,40,10,90],[110,70,100,10],[110,70,10,40]].forEach(([x,y,w,h])=>ctx.fillRect(x,y,w,h));ctx.fillStyle='#ddd';for(let i=0;i<9;i++)ctx.fillRect(62+i*24,94,4,4);ctx.fillStyle='#eee';ctx.fillRect(130,86,18,18);ctx.fillStyle='#111';ctx.fillRect(136,92,3,3);ctx.fillRect(142,92,3,3);ctx.fillStyle='#f87171';ctx.fillRect(228,86,18,16);ctx.fillStyle='#fff';ctx.fillRect(232,90,4,4);ctx.fillRect(240,90,4,4);});
