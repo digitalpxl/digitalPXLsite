@@ -70,7 +70,7 @@ nav ul a:hover::after { width: calc(100% - 26px); }
 .hero-right { position: relative; z-index: 1; }
 .hero-card { background: var(--surface); border-radius: 16px; border: 1px solid var(--border); overflow: hidden; }
 .hero-card-img { width: 100%; aspect-ratio: 4/3; background: var(--surface2); position: relative; overflow: hidden; }
-.hero-card-img canvas { display: block; width: 100%; height: 100%; }
+.hero-card-img canvas, .hero-card-img img { display: block; width: 100%; height: 100%; object-fit: cover; }
 .card-badge { position: absolute; top: 12px; left: 12px; background: rgba(15,15,15,0.8); backdrop-filter: blur(8px); border: 1px solid var(--border); border-radius: 100px; padding: 5px 12px; font-size: 12px; font-weight: 600; color: var(--grey1); }
 .hero-card-body { padding: 20px 24px 24px; }
 .card-tag { font-size: 12px; font-weight: 600; color: var(--grey3); text-transform: uppercase; letter-spacing: 0.06em; margin-bottom: 6px; }
@@ -173,11 +173,11 @@ footer { border-top: 1px solid var(--border); background: var(--page-bg); }
     </a>
     <div class="nav-sep"></div>
     <nav><ul>
-      <li><a href="index.html">Home</a></li>
-      <li><a href="games.html">Games</a></li>
-      <li><a href="devlog.html">Devlog</a></li>
+      <li><a href="#">Home</a></li>
+      <li><a href="#games">Games</a></li>
+      <li><a href="#news">Devlog</a></li>
       <li><a href="#community">Community</a></li>
-      <li><a href="merch.html">Merch</a></li>
+      <li><a href="#">Merch</a></li>
     </ul></nav>
     <div class="nav-right">
       <a class="nav-social" href="https://discord.gg/RzZQqpJEzV">DC</a>
@@ -193,7 +193,7 @@ footer { border-top: 1px solid var(--border); background: var(--page-bg); }
   <div class="hero-left">
     <div class="hero-badge"><div class="badge-dot"></div>Independent Game Studio — Queensland, AU</div>
     <h1 class="hero-title">Building games that are <em>PXL perfect.</em></h1>
-    <p class="hero-desc">Digital PXL is an indie game studio crafting VR and PC games from scratch. From Cubical Combat VR to browser games — we build with purpose.</p>
+    <p class="hero-desc">Digital PXL is an indie game studio crafting VR and PC games from scratch. From Cubical VR to browser games — we build with purpose.</p>
     <div class="hero-actions">
       <a href="#games" class="btn btn-white">View our games</a>
       <a href="https://discord.gg/RzZQqpJEzV" class="btn btn-outline">Join community</a>
@@ -202,12 +202,12 @@ footer { border-top: 1px solid var(--border); background: var(--page-bg); }
   <div class="hero-right">
     <div class="hero-card">
       <div class="hero-card-img">
-        <canvas id="heroCanvas" width="480" height="360"></canvas>
+        <img src="cubical-vr.jpg" alt="Cubical VR gameplay">
         <div class="card-badge">In Development</div>
       </div>
       <div class="hero-card-body">
         <div class="card-tag">VR · Shooter · UE5</div>
-        <div class="card-title">Cubical Combat VR</div>
+        <div class="card-title">Cubical VR</div>
         <p class="card-desc">Fast-paced VR combat in fully destructible cube environments. Physics-based, motion-controlled.</p>
         <a href="#games" class="card-link">Learn more →</a>
       </div>
@@ -238,7 +238,7 @@ footer { border-top: 1px solid var(--border); background: var(--page-bg); }
       <a href="#" class="news-main">
         <div class="news-img" id="newsImg"></div>
         <div class="news-body">
-          <div class="news-tag">Devlog · Cubical Combat VR</div>
+          <div class="news-tag">Devlog · Cubical VR</div>
           <div class="news-title">Pre-Alpha Update — Core mechanics are in</div>
           <p class="news-desc">VR motion controls, the booster system and the first arena are taking shape. Here's a full breakdown of what's working and what's coming next.</p>
         </div>
@@ -256,10 +256,10 @@ footer { border-top: 1px solid var(--border); background: var(--page-bg); }
   <div class="section">
     <div class="section-top">
       <h2 class="section-heading">Our games</h2>
-      <a href="games.html" class="section-all">All games →</a>
+      <a href="#" class="section-all">All games →</a>
     </div>
     <div class="games-grid">
-      <a href="#" class="game-card"><div class="game-thumb" id="gt1"></div><div class="game-body"><div class="game-platform">PC VR · Meta Quest</div><div class="game-name">Cubical Combat VR</div><span class="game-pill"><span class="pill-dot"></span>In Development</span></div></a>
+      <a href="#" class="game-card"><div class="game-thumb" id="gt1"></div><div class="game-body"><div class="game-platform">PC VR · Meta Quest</div><div class="game-name">Cubical VR</div><span class="game-pill"><span class="pill-dot"></span>In Development</span></div></a>
       <a href="pxl_dash.html" class="game-card"><div class="game-thumb" id="gt2"></div><div class="game-body"><div class="game-platform">Browser · PC</div><div class="game-name">PXL Dash</div><span class="game-pill live"><span class="pill-dot"></span>Play Now</span></div></a>
       <a href="digital_pxl_snake.html" class="game-card"><div class="game-thumb" id="gt3"></div><div class="game-body"><div class="game-platform">Browser</div><div class="game-name">PXL Snake</div><span class="game-pill live"><span class="pill-dot"></span>Play Now</span></div></a>
     </div>
@@ -295,7 +295,7 @@ footer { border-top: 1px solid var(--border); background: var(--page-bg); }
         <div class="footer-logo"><div class="footer-logo-icon" id="footerIcon"></div><span class="footer-logo-name">DIGITAL <span>PXL</span></span></div>
         <p class="footer-tagline">Independent game studio building pixel-perfect experiences from Queensland, Australia.</p>
       </div>
-      <div class="footer-col"><h4>Site</h4><ul class="footer-links"><li><a href="index.html">Home</a></li><li><a href="games.html">Games</a></li><li><a href="devlog.html">Devlog</a></li><li><a href="merch.html">Merch</a></li><li><a href="digital_pxl_brand.html">Trademarks</a></li><li><a href="mailto:admin@digitalpxl.org">Contact</a></li></ul></div>
+      <div class="footer-col"><h4>Site</h4><ul class="footer-links"><li><a href="#">Home</a></li><li><a href="#games">Games</a></li><li><a href="#news">Devlog</a></li><li><a href="#">Merch</a></li><li><a href="digital_pxl_brand.html">Trademarks</a></li><li><a href="mailto:admin@digitalpxl.org">Contact</a></li></ul></div>
       <div class="footer-col"><h4>Connect</h4><ul class="footer-links"><li><a href="https://discord.gg/RzZQqpJEzV">Discord</a></li><li><a href="https://www.tiktok.com/@digital.pxl">TikTok</a></li><li><a href="https://www.youtube.com/@digitalpxl">YouTube</a></li><li><a href="https://x.com/_DigitalPXL">X / Twitter</a></li><li><a href="https://www.instagram.com/digital.pxl/">Instagram</a></li></ul></div>
     </div>
     <div class="footer-bottom"><span class="footer-copy">© 2026 Digital PXL. All rights reserved.</span><span class="footer-pixel">PXL PERFECT</span></div>
@@ -345,14 +345,7 @@ drawHero();}
 
 // News image
 const ni=document.getElementById('newsImg');
-if(ni){const c=document.createElement('canvas');c.width=640;c.height=320;const ctx=c.getContext('2d');
-  ctx.fillStyle='#161616';ctx.fillRect(0,0,640,320);
-  ctx.strokeStyle='rgba(255,255,255,0.03)';
-  for(let x=0;x<640;x+=32){ctx.beginPath();ctx.moveTo(x,0);ctx.lineTo(x,320);ctx.stroke();}
-  for(let y=0;y<320;y+=32){ctx.beginPath();ctx.moveTo(0,y);ctx.lineTo(640,y);ctx.stroke();}
-  [[80,60,90,100],[210,50,110,120],[380,70,100,110],[510,60,90,100],[160,190,70,70],[320,170,90,90],[460,160,80,80]].forEach(([x,y,w,h],i)=>{const g=32+i*8;ctx.fillStyle=`rgb(${g},${g},${g})`;ctx.fillRect(x,y,w,h);ctx.fillStyle=`rgb(${g+14},${g+14},${g+14})`;ctx.fillRect(x,y,w,3);});
-  ctx.fillStyle='rgba(255,255,255,0.07)';ctx.font="bold 16px 'Press Start 2P',monospace";ctx.textAlign='center';ctx.fillText('CUBICAL COMBAT VR',320,300);
-  c.style.cssText='width:100%;height:100%;object-fit:cover;display:block;';ni.appendChild(c);}
+if(ni){const i=new Image();i.src='cubical-vr.jpg';i.alt='Cubical VR';i.style.cssText='width:100%;height:100%;object-fit:cover;display:block;';ni.appendChild(i);}
 
 // Game thumbs
 function makeThumb(id,label){const el=document.getElementById(id);if(!el)return;const c=document.createElement('canvas');c.width=320;c.height=180;const ctx=c.getContext('2d');
@@ -360,7 +353,7 @@ function makeThumb(id,label){const el=document.getElementById(id);if(!el)return;
   for(let x=0;x<320;x+=20)for(let y=0;y<180;y+=20){if(Math.random()<0.07){ctx.fillStyle='rgba(255,255,255,0.05)';ctx.fillRect(x+2,y+2,16,16);}}
   ctx.fillStyle='rgba(255,255,255,0.12)';ctx.font="7px 'Press Start 2P',monospace";ctx.textAlign='center';ctx.fillText(label,160,92);
   c.style.cssText='width:100%;height:100%;object-fit:cover;display:block;';el.appendChild(c);}
-makeThumb('gt1','CUBICAL COMBAT VR');makeThumb('gt2','PXL DASH');makeThumb('gt3','PXL SNAKE');
+(function(){const el=document.getElementById('gt1');if(!el)return;const i=new Image();i.src='cubical-vr.jpg';i.alt='Cubical VR';i.style.cssText='width:100%;height:100%;object-fit:cover;display:block;';el.appendChild(i);})();makeThumb('gt2','PXL DASH');makeThumb('gt3','PXL SNAKE');
 </script>
 </body>
 </html>
