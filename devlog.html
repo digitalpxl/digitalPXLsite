@@ -128,7 +128,7 @@ footer { border-top: 1px solid var(--border); }
 .footer-pixel { font-family: var(--pixel); font-size: 7px; color: rgba(255,255,255,0.12); letter-spacing: 0.1em; }
 
 @media(max-width:1024px){ .featured { grid-template-columns: 1fr; } .featured-img { min-height: 220px; } .grid { grid-template-columns: 1fr 1fr; } }
-@media(max-width:768px){ nav ul { display: none; } .nav-sep { display: none; } .nav-inner, .page-head-inner, .toolbar, .section, .footer-inner, .follow-inner { padding-left: 20px; padding-right: 20px; } .featured-body, .article-main { padding: 26px 22px; } .search { width: 100%; } }
+@media(max-width:768px){ :root { --nav-height: 104px; } .nav-inner { flex-wrap: wrap; align-content: center; row-gap: 4px; } nav { order: 3; flex: 0 0 100%; overflow-x: auto; scrollbar-width: none; } nav::-webkit-scrollbar { display: none; } nav ul { gap: 0; white-space: nowrap; } nav ul a { padding: 6px 12px; font-size: 14px; } nav ul a::after { left: 12px; } .nav-sep { display: none; } .nav-inner, .page-head-inner, .toolbar, .section, .footer-inner, .follow-inner { padding-left: 20px; padding-right: 20px; } .featured-body, .article-main { padding: 26px 22px; } .search { width: 100%; } }
 @media(max-width:560px){ .grid { grid-template-columns: 1fr; } }
 </style>
 </head>
@@ -229,7 +229,7 @@ const POSTS = [
     title:'Pre-Alpha update: the core of Cubical VR',
     excerpt:'Where our flagship VR game stands today: what works, what is rough, and what we are tackling next.',
     body:[
-      {p:'Cubical VR is our flagship game: fast VR combat in fully destructible cube environments, built in Unreal Engine 5. This is the first proper look at where it stands.'},
+      {p:'Cubical VR is our flagship game: fast VR combat in fully destructible cube environments, built in Unity. This is the first proper look at where it stands.'},
       {h:'What is taking shape'},
       {ul:['VR motion controls for punching and grabbing','The cube-arena look and feel','The core loop: enter the arena, fight, smash the environment, collect fragments, upgrade']},
       {h:'What is still rough'},
