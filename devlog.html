@@ -1,0 +1,448 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Devlog — Digital PXL</title>
+<meta name="description" content="Development updates from Digital PXL: Cubical VR, browser games, PXL SMP and studio news.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&family=Press+Start+2P&display=swap" rel="stylesheet">
+<style>
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+html { scroll-behavior: smooth; }
+:root {
+  --page-bg: #0f0f0f; --surface: #191919; --surface2: #222;
+  --border: rgba(255,255,255,0.08); --border2: rgba(255,255,255,0.05);
+  --white: #fff; --black: #0f0f0f; --grey1: #e8e8e8; --grey2: #a0a0a0; --grey3: #606060;
+  --nav-height: 72px; --page-max: 1280px;
+  --font: 'Outfit', sans-serif; --pixel: 'Press Start 2P', monospace;
+}
+body { background: var(--page-bg); color: var(--white); font-family: var(--font); overflow-x: hidden; -webkit-font-smoothing: antialiased; }
+body.lock { overflow: hidden; }
+a { text-decoration: none; color: inherit; }
+button, input { font-family: inherit; }
+
+/* NAV */
+header { position: fixed; top: 0; left: 0; right: 0; z-index: 200; background: rgba(15,15,15,0.7); backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px); border-bottom: 1px solid var(--border); }
+.nav-inner { max-width: var(--page-max); margin: 0 auto; padding: 0 32px; height: var(--nav-height); display: flex; align-items: center; }
+.nav-logo { display: flex; align-items: center; gap: 10px; flex-shrink: 0; }
+.nav-logo-icon, .footer-logo-icon { display: grid; grid-template-columns: repeat(11,5px); gap: 1px; image-rendering: pixelated; }
+.nav-logo-icon div, .footer-logo-icon div { width: 5px; height: 5px; }
+.nav-logo-name, .footer-logo-name { font-family: var(--pixel); font-size: 8px; letter-spacing: 0.04em; white-space: nowrap; }
+.nav-logo-name span, .footer-logo-name span { color: var(--grey3); }
+.nav-sep { width: 1px; height: 40px; background: var(--border); margin: 0 28px; flex-shrink: 0; }
+nav { flex: 1; }
+nav ul { display: flex; align-items: center; gap: 2px; list-style: none; }
+nav ul a { font-size: 15px; font-weight: 500; color: var(--grey2); padding: 7px 13px; border-radius: 100px; transition: color 0.15s; display: block; position: relative; }
+nav ul a::after { content: ''; position: absolute; bottom: 2px; left: 13px; width: 0; height: 2px; background: var(--white); border-radius: 2px; transition: width 0.2s; }
+nav ul a:hover, nav ul a.active { color: var(--white); }
+nav ul a:hover::after, nav ul a.active::after { width: calc(100% - 26px); }
+.nav-right { display: flex; align-items: center; gap: 8px; margin-left: auto; }
+.nav-social { width: 34px; height: 34px; display: flex; align-items: center; justify-content: center; border-radius: 50%; background: var(--surface); border: 1px solid var(--border); font-size: 10px; font-weight: 700; color: var(--grey2); transition: all 0.15s; }
+.nav-social:hover { background: var(--surface2); color: var(--white); }
+
+/* HEAD */
+.page-head { padding-top: var(--nav-height); position: relative; border-bottom: 1px solid var(--border); }
+.page-head-grid { position: absolute; inset: 0; background-image: linear-gradient(var(--border2) 1px, transparent 1px), linear-gradient(90deg, var(--border2) 1px, transparent 1px); background-size: 64px 64px; pointer-events: none; mask-image: radial-gradient(ellipse 70% 100% at 30% 50%, black 10%, transparent 75%); -webkit-mask-image: radial-gradient(ellipse 70% 100% at 30% 50%, black 10%, transparent 75%); }
+.page-head-inner { max-width: var(--page-max); margin: 0 auto; padding: 72px 32px 56px; position: relative; }
+.eyebrow { font-family: var(--pixel); font-size: 8px; color: var(--grey3); letter-spacing: 0.15em; display: flex; align-items: center; gap: 10px; margin-bottom: 20px; }
+.eyebrow::before { content: ''; width: 8px; height: 8px; background: var(--white); display: block; }
+.page-title { font-size: clamp(36px,5vw,60px); font-weight: 800; letter-spacing: -0.02em; line-height: 1.1; margin-bottom: 16px; }
+.page-title em { font-style: normal; color: var(--grey3); }
+.page-desc { font-size: 18px; color: var(--grey2); line-height: 1.7; max-width: 520px; }
+
+/* TOOLBAR */
+.toolbar { max-width: var(--page-max); margin: 0 auto; padding: 32px 32px 0; display: flex; gap: 12px; flex-wrap: wrap; align-items: center; justify-content: space-between; }
+.filters { display: flex; gap: 8px; flex-wrap: wrap; }
+.filter { font-size: 14px; font-weight: 600; color: var(--grey2); background: var(--surface); border: 1px solid var(--border); border-radius: 100px; padding: 8px 18px; cursor: pointer; transition: all 0.15s; }
+.filter:hover { color: var(--white); border-color: rgba(255,255,255,0.18); }
+.filter.active { background: var(--white); color: var(--black); border-color: var(--white); }
+.search { background: var(--surface); border: 1px solid var(--border); border-radius: 100px; padding: 9px 18px; color: var(--white); font-size: 14px; width: 240px; outline: none; transition: border-color 0.15s; }
+.search::placeholder { color: var(--grey3); }
+.search:focus { border-color: rgba(255,255,255,0.3); }
+
+/* FEATURED + GRID */
+.section { max-width: var(--page-max); margin: 0 auto; padding: 32px 32px 80px; }
+.featured { display: grid; grid-template-columns: 1.3fr 1fr; background: var(--surface); border: 1px solid var(--border); border-radius: 16px; overflow: hidden; margin-bottom: 16px; cursor: pointer; transition: border-color 0.15s; }
+.featured:hover { border-color: rgba(255,255,255,0.2); }
+.featured-img { background: var(--surface2); min-height: 320px; position: relative; overflow: hidden; }
+.featured-img canvas { position: absolute; inset: 0; width: 100%; height: 100%; display: block; object-fit: cover; }
+.featured-body { padding: 40px; display: flex; flex-direction: column; justify-content: center; gap: 14px; }
+.latest { font-family: var(--pixel); font-size: 7px; letter-spacing: 0.15em; color: var(--black); background: var(--white); padding: 6px 10px; width: fit-content; }
+.meta { font-size: 13px; color: var(--grey3); font-weight: 500; }
+.tag { font-size: 12px; font-weight: 600; color: var(--grey2); text-transform: uppercase; letter-spacing: 0.06em; }
+.featured-title { font-size: clamp(24px,3vw,36px); font-weight: 800; letter-spacing: -0.02em; line-height: 1.2; }
+.excerpt { font-size: 16px; color: var(--grey2); line-height: 1.7; }
+.read { font-size: 14px; font-weight: 700; color: var(--white); display: inline-flex; gap: 6px; align-items: center; transition: gap 0.15s; }
+.featured:hover .read, .post:hover .read { gap: 10px; }
+
+.grid { display: grid; grid-template-columns: repeat(3,1fr); gap: 16px; }
+.post { background: var(--surface); border: 1px solid var(--border); border-radius: 14px; overflow: hidden; display: flex; flex-direction: column; cursor: pointer; transition: border-color 0.15s, transform 0.2s; }
+.post:hover { border-color: rgba(255,255,255,0.18); transform: translateY(-3px); }
+.post.hide, .featured.hide { display: none; }
+.post-img { aspect-ratio: 16/9; background: var(--surface2); }
+.post-img canvas { width: 100%; height: 100%; display: block; }
+.post-body { padding: 18px 20px 20px; display: flex; flex-direction: column; gap: 8px; flex: 1; }
+.post-title { font-size: 18px; font-weight: 700; line-height: 1.3; }
+.post .excerpt { font-size: 14px; line-height: 1.6; flex: 1; }
+.post-foot { display: flex; justify-content: space-between; align-items: center; margin-top: 6px; }
+.empty { display: none; text-align: center; color: var(--grey3); padding: 60px 0; font-size: 16px; }
+.empty.show { display: block; }
+
+/* READER */
+.scrim { position: fixed; inset: 0; background: rgba(0,0,0,0.75); backdrop-filter: blur(4px); opacity: 0; pointer-events: none; transition: opacity 0.2s; z-index: 300; overflow-y: auto; padding: 48px 20px; }
+.scrim.open { opacity: 1; pointer-events: all; }
+.article { max-width: 720px; margin: 0 auto; background: var(--surface); border: 1px solid var(--border); border-radius: 16px; overflow: hidden; transform: translateY(16px); transition: transform 0.25s; }
+.scrim.open .article { transform: translateY(0); }
+.article-art { aspect-ratio: 16/7; background: var(--surface2); position: relative; }
+.article-art canvas { width: 100%; height: 100%; display: block; }
+.close { position: absolute; top: 14px; right: 14px; width: 36px; height: 36px; border-radius: 50%; background: rgba(15,15,15,0.8); border: 1px solid var(--border); color: var(--grey1); font-size: 16px; cursor: pointer; }
+.close:hover { background: var(--white); color: var(--black); }
+.article-main { padding: 36px 40px 44px; }
+.article-title { font-size: clamp(26px,4vw,38px); font-weight: 800; letter-spacing: -0.02em; line-height: 1.2; margin: 10px 0 8px; }
+.article-meta { font-size: 14px; color: var(--grey3); margin-bottom: 28px; }
+.prose p { font-size: 17px; line-height: 1.8; color: var(--grey1); margin-bottom: 18px; }
+.prose h3 { font-size: 20px; font-weight: 700; margin: 30px 0 12px; }
+.prose ul { margin: 0 0 18px 0; padding-left: 0; list-style: none; }
+.prose li { font-size: 17px; line-height: 1.7; color: var(--grey1); padding: 4px 0 4px 22px; position: relative; }
+.prose li::before { content: ''; position: absolute; left: 0; top: 15px; width: 8px; height: 8px; background: var(--white); }
+.article-foot { display: flex; justify-content: space-between; gap: 10px; flex-wrap: wrap; margin-top: 32px; padding-top: 24px; border-top: 1px solid var(--border); }
+.btn { display: inline-flex; align-items: center; gap: 8px; font-size: 14px; font-weight: 600; padding: 11px 20px; border-radius: 10px; border: 1px solid var(--border); background: var(--surface2); color: var(--white); cursor: pointer; transition: all 0.15s; }
+.btn:hover { background: rgba(255,255,255,0.1); border-color: rgba(255,255,255,0.2); }
+.btn.white { background: var(--white); color: var(--black); border-color: var(--white); }
+.btn.white:hover { background: var(--grey1); }
+.btn[disabled] { opacity: 0.35; pointer-events: none; }
+
+/* FOLLOW */
+.follow { background: var(--surface); border-top: 1px solid var(--border); }
+.follow-inner { max-width: var(--page-max); margin: 0 auto; padding: 72px 32px; display: flex; justify-content: space-between; align-items: center; gap: 32px; flex-wrap: wrap; }
+.follow h2 { font-size: clamp(24px,3vw,36px); font-weight: 800; letter-spacing: -0.02em; margin-bottom: 8px; }
+.follow p { font-size: 16px; color: var(--grey2); max-width: 440px; line-height: 1.7; }
+.follow-btns { display: flex; gap: 10px; flex-wrap: wrap; }
+
+/* FOOTER */
+footer { border-top: 1px solid var(--border); }
+.footer-inner { max-width: var(--page-max); margin: 0 auto; padding: 40px 32px; display: flex; justify-content: space-between; align-items: center; gap: 16px; flex-wrap: wrap; }
+.footer-logo { display: flex; align-items: center; gap: 10px; }
+.footer-copy { font-size: 13px; color: var(--grey3); }
+.footer-pixel { font-family: var(--pixel); font-size: 7px; color: rgba(255,255,255,0.12); letter-spacing: 0.1em; }
+
+@media(max-width:1024px){ .featured { grid-template-columns: 1fr; } .featured-img { min-height: 220px; } .grid { grid-template-columns: 1fr 1fr; } }
+@media(max-width:768px){ nav ul { display: none; } .nav-sep { display: none; } .nav-inner, .page-head-inner, .toolbar, .section, .footer-inner, .follow-inner { padding-left: 20px; padding-right: 20px; } .featured-body, .article-main { padding: 26px 22px; } .search { width: 100%; } }
+@media(max-width:560px){ .grid { grid-template-columns: 1fr; } }
+</style>
+</head>
+<body>
+
+<header>
+  <div class="nav-inner">
+    <a href="index.html" class="nav-logo">
+      <div class="nav-logo-icon" id="navIcon"></div>
+      <span class="nav-logo-name">DIGITAL <span>PXL</span></span>
+    </a>
+    <div class="nav-sep"></div>
+    <nav><ul>
+      <li><a href="index.html">Home</a></li>
+      <li><a href="games.html">Games</a></li>
+      <li><a href="devlog.html" class="active">Devlog</a></li>
+      <li><a href="index.html#community">Community</a></li>
+      <li><a href="merch.html">Merch</a></li>
+    </ul></nav>
+    <div class="nav-right">
+      <a class="nav-social" href="https://discord.gg/RzZQqpJEzV">DC</a>
+      <a class="nav-social" href="https://x.com/_DigitalPXL">X</a>
+      <a class="nav-social" href="https://www.youtube.com/@digitalpxl">YT</a>
+      <a class="nav-social" href="https://www.tiktok.com/@digital.pxl">TK</a>
+    </div>
+  </div>
+</header>
+
+<div class="page-head">
+  <div class="page-head-grid"></div>
+  <div class="page-head-inner">
+    <div class="eyebrow">DEVLOG</div>
+    <h1 class="page-title">Built in <em>public.</em></h1>
+    <p class="page-desc">Progress updates, release notes and behind-the-scenes from the Digital PXL studio.</p>
+  </div>
+</div>
+
+<div class="toolbar">
+  <div class="filters" id="filters"></div>
+  <input class="search" id="search" type="search" placeholder="Search posts..." aria-label="Search posts">
+</div>
+
+<div class="section">
+  <div id="featuredWrap"></div>
+  <div class="grid" id="grid"></div>
+  <div class="empty" id="empty">No posts match that. Try another filter or search.</div>
+</div>
+
+<div class="follow">
+  <div class="follow-inner">
+    <div>
+      <h2>Follow the build</h2>
+      <p>New devlogs land here first. Chat with us and see work-in-progress in the Discord.</p>
+    </div>
+    <div class="follow-btns">
+      <a class="btn white" href="https://discord.gg/RzZQqpJEzV">Join Discord</a>
+      <a class="btn" href="https://www.youtube.com/@digitalpxl">YouTube</a>
+      <a class="btn" href="https://www.tiktok.com/@digital.pxl">TikTok</a>
+    </div>
+  </div>
+</div>
+
+<footer>
+  <div class="footer-inner">
+    <div class="footer-logo"><div class="footer-logo-icon" id="footerIcon"></div><span class="footer-logo-name">DIGITAL <span>PXL</span></span></div>
+    <span class="footer-copy">© 2026 Digital PXL. All rights reserved.</span>
+    <span class="footer-pixel">PXL PERFECT</span>
+  </div>
+</footer>
+
+<div class="scrim" id="scrim" aria-hidden="true">
+  <article class="article" id="article" role="dialog" aria-modal="true" aria-labelledby="aTitle">
+    <div class="article-art"><canvas id="aCanvas" width="1280" height="560"></canvas><button class="close" id="close" aria-label="Close">✕</button></div>
+    <div class="article-main">
+      <div class="tag" id="aTag"></div>
+      <h2 class="article-title" id="aTitle"></h2>
+      <div class="article-meta" id="aMeta"></div>
+      <div class="prose" id="aBody"></div>
+      <div class="article-foot">
+        <button class="btn" id="prev">← Newer</button>
+        <button class="btn" id="copy">Copy link</button>
+        <button class="btn" id="next">Older →</button>
+      </div>
+    </div>
+  </article>
+</div>
+
+<script>
+/* ============================================================
+   POSTS — add new devlogs at the TOP of this list (newest first).
+   Block types in body: {h:'Heading'}  {p:'Paragraph'}  {ul:['a','b']}
+   cat: 'Cubical VR' | 'Games' | 'Community' | 'Studio'
+   art: cubes | runner | snake | smp | merch | mascot | studio
+   Dates and details below are drafts - edit them to match reality.
+   ============================================================ */
+const POSTS = [
+  { id:'cubical-vr-prealpha', cat:'Cubical VR', art:'cubes', date:'2026-11-14', read:3,
+    title:'Pre-Alpha update: the core of Cubical VR',
+    excerpt:'Where our flagship VR game stands today: what works, what is rough, and what we are tackling next.',
+    body:[
+      {p:'Cubical VR is our flagship game: fast VR combat in fully destructible cube environments, built in Unreal Engine 5. This is the first proper look at where it stands.'},
+      {h:'What is taking shape'},
+      {ul:['VR motion controls for punching and grabbing','The cube-arena look and feel','The core loop: enter the arena, fight, smash the environment, collect fragments, upgrade']},
+      {h:'What is still rough'},
+      {ul:['The wrist booster system is not moving the player reliably yet. We are reworking how force is applied so it acts on the right physics body.','Cube destruction and throwing are designed but not built.','Multiplayer arenas are a later goal.']},
+      {h:'What is next'},
+      {ul:['Fix the boosters','Block out Level 1, "The Cube Room"','Get to a first playable alpha build']},
+      {p:'We will keep posting progress here. If you want to see work-in-progress clips and give feedback, the Discord is the place.'}
+    ]},
+  { id:'merch-page', cat:'Studio', art:'merch', date:'2026-11-12', read:2,
+    title:'Merch is on the way',
+    excerpt:'An embroidered polo, cap, tee, hoodie, stickers and a PXL plushie are on the merch page.',
+    body:[
+      {p:'The merch page is up. Everything is designed in-house around the Digital PXL pixel icon and the PXL mascot.'},
+      {h:'The first range'},
+      {ul:['Embroidered polo and embroidered cap','Logo tee and pocket hoodie','Sticker sheet','PXL plushie (pre-order)','PXL collector box (limited)']},
+      {h:'About the plushie'},
+      {p:'We have put together a reference sheet with front, side and back views, colours and spec notes, ready to send to plush manufacturers for quotes. The plan is to take pre-orders first, then do a small production run.'},
+      {p:'Store checkout is being connected to Shopify, so check back soon.'}
+    ]},
+  { id:'meet-pxl', cat:'Studio', art:'mascot', date:'2026-11-05', read:2,
+    title:'Meet PXL, the studio mascot',
+    excerpt:'A small blocky character with a big hat, who ended up starring in our games and our merch.',
+    body:[
+      {p:'PXL is the Digital PXL mascot: a chunky, pixel-art creature with big glossy eyes, rosy cheeks and a hat carrying our D and P badges.'},
+      {p:'PXL started as a logo companion and now runs through almost everything we make. He is the hero of PXL Dash, stars on the merch, and is the character we are turning into a plushie.'},
+      {h:'Design notes'},
+      {ul:['Boxy head and body with rounded corners only','Monochrome body, with pink blush and ear accents','A dark hat with the D and P badges']},
+      {p:'More poses, outfits and expressions are coming as the games grow.'}
+    ]},
+  { id:'pxl-dash', cat:'Games', art:'runner', date:'2026-10-30', read:2,
+    title:'PXL Dash is live in your browser',
+    excerpt:'A free endless runner starring PXL. Double jump, dodge obstacles and grab power-ups.',
+    body:[
+      {p:'PXL Dash is our first browser game: an endless runner where PXL sprints across a dark pixel world.'},
+      {h:'How it plays'},
+      {ul:['Space or tap to jump, and you can double jump','Three lives, with a short invincibility window after each hit','Power-ups: speed boost, shield and score x2','The game speeds up as your score climbs']},
+      {p:'It runs on desktop and mobile, no download needed. A desktop build is something we are looking at next.'}
+    ]},
+  { id:'pxl-snake', cat:'Games', art:'snake', date:'2026-10-26', read:1,
+    title:'PXL Snake gets the Digital PXL treatment',
+    excerpt:'Classic snake with power-ups, rebuilt in our monochrome pixel style.',
+    body:[
+      {p:'We took a snake game with power-ups and gave it the full Digital PXL look: dark theme, pixel font and a snake that fades from white to grey.'},
+      {ul:['Speed boost, slow motion and score x2 power-ups','Arrow keys, WASD, swipe or an on-screen d-pad on mobile','Game-over screen with your score and best score']},
+      {p:'It is free to play on the site.'}
+    ]},
+  { id:'pxl-smp', cat:'Community', art:'smp', date:'2026-10-20', read:1,
+    title:'PXL SMP is open',
+    excerpt:'Our Minecraft community server is up. Come build with the crew.',
+    body:[
+      {p:'PXL SMP is the Digital PXL Minecraft community. It is a place to hang out, build and play alongside the studio.'},
+      {p:'Join the Discord to get the server details and meet everyone. Events and community builds will be announced there first.'}
+    ]},
+  { id:'studio-open', cat:'Studio', art:'studio', date:'2026-10-10', read:1,
+    title:'Digital PXL is officially open',
+    excerpt:'Website, brand, mascot and socials are live. Welcome to the studio.',
+    body:[
+      {p:'Digital PXL is an independent game studio based in Queensland, Australia, and today the doors are open.'},
+      {ul:['The studio website and brand kit are live','The pixel logo and PXL mascot are finished','Our socials are open: Discord, YouTube, TikTok, X and Instagram']},
+      {p:'Our goal is simple: games that are PXL perfect. Thanks for being here from day one.'}
+    ]}
+];
+
+/* ---------------- helpers ---------------- */
+const $ = id => document.getElementById(id);
+const CATS = ['All','Cubical VR','Games','Community','Studio'];
+const fmtDate = d => new Date(d+'T00:00:00').toLocaleDateString('en-AU',{day:'numeric',month:'short',year:'numeric'});
+const iconGrid=[[0,1,1,1,1,1,1,1,0,0,0],[1,1,2,2,2,2,2,1,1,0,0],[1,2,0,0,0,0,0,2,1,1,0],[1,2,0,1,1,1,0,0,2,1,1],[1,2,0,1,0,1,0,0,2,1,1],[1,2,0,1,1,1,0,0,2,1,1],[1,2,0,0,0,0,0,0,2,1,1],[1,2,0,0,0,0,0,2,1,1,0],[1,1,2,2,2,2,2,1,1,0,0],[0,1,1,1,1,1,1,1,0,0,0],[0,0,0,0,0,0,0,0,0,0,0]];
+function domIcon(id){const el=$(id);iconGrid.forEach(r=>r.forEach(v=>{const d=document.createElement('div');d.style.background=v===1?'#fff':v===2?'#444':'transparent';el.appendChild(d);}));}
+domIcon('navIcon');domIcon('footerIcon');
+
+/* ---------------- post art (320x180 space) ---------------- */
+const shot=new Image();let shotReady=false;
+shot.onload=()=>{shotReady=true;render();if(current!==null)artDraw($('aCanvas'),POSTS[current].art);};
+shot.src='cubical-vr.jpg';
+function artDraw(canvas,type){
+  const k=canvas.width/320,ctx=canvas.getContext('2d');
+  if(type==='cubes'&&shotReady){
+    ctx.setTransform(1,0,0,1,0,0);
+    const cw=canvas.width,ch=canvas.height,iw=shot.naturalWidth,ih=shot.naturalHeight;
+    const sc=Math.max(cw/iw,ch/ih),sw=cw/sc,sh=ch/sc;
+    ctx.drawImage(shot,(iw-sw)/2,(ih-sh)*0.3,sw,sh,0,0,cw,ch);
+    return;
+  }
+  ctx.setTransform(k,0,0,canvas.height/180,0,0);
+  ctx.fillStyle='#161616';ctx.fillRect(0,0,320,180);
+  ctx.strokeStyle='rgba(255,255,255,0.035)';ctx.lineWidth=1;
+  for(let x=0;x<=320;x+=20){ctx.beginPath();ctx.moveTo(x,0);ctx.lineTo(x,180);ctx.stroke();}
+  for(let y=0;y<=180;y+=20){ctx.beginPath();ctx.moveTo(0,y);ctx.lineTo(320,y);ctx.stroke();}
+  const fill=(c,x,y,w,h)=>{ctx.fillStyle=c;ctx.fillRect(x,y,w,h);};
+  if(type==='cubes'){
+    [[34,86,40],[96,56,54],[172,76,44],[236,50,50],[140,126,30]].forEach(([x,y,s],i)=>{const g=40+i*9;fill(`rgb(${g},${g},${g})`,x,y,s,s);fill(`rgb(${g+16},${g+16},${g+16})`,x,y,s,3);fill(`rgb(${g-8},${g-8},${g-8})`,x+s-4,y,4,s);});
+  }
+  if(type==='runner'){
+    fill('#1e1e1e',0,130,320,50);fill('#2c2c2c',0,130,320,2);
+    [[110,98,14,32],[210,112,14,18]].forEach(([x,y,w,h])=>{fill('#2e2e2e',x,y,w,h);fill('#f87171',x,y,w,2);});
+    fill('#eee',54,102,18,26);fill('#333',56,96,14,6);fill('#111',58,108,3,3);fill('#111',65,108,3,3);fill('#fbbf24',160,84,10,10);
+  }
+  if(type==='snake'){
+    for(let i=0;i<9;i++){const v=255-i*18;fill(`rgb(${v},${v},${v})`,70+i*16,70,14,14);}
+    for(let i=0;i<4;i++)fill('#bbb',214,86+i*16,14,14);
+    fill('#e05555',110,36,12,12);
+  }
+  if(type==='smp'){
+    ctx.strokeStyle='#bbb';ctx.lineWidth=3;ctx.beginPath();for(let i=0;i<6;i++){const a=Math.PI/3*i+Math.PI/6;const x=160+46*Math.cos(a),y=88+46*Math.sin(a);i?ctx.lineTo(x,y):ctx.moveTo(x,y);}ctx.closePath();ctx.stroke();
+    ctx.fillStyle='#fff';ctx.font="14px 'Press Start 2P',monospace";ctx.textAlign='center';ctx.fillText('PXL',160,90);
+    ctx.fillStyle='#888';ctx.font="8px 'Press Start 2P',monospace";ctx.fillText('SMP',160,106);
+  }
+  if(type==='merch'){
+    ctx.fillStyle='#262626';ctx.strokeStyle='#444';ctx.lineWidth=1.5;ctx.beginPath();
+    [[116,36],[140,30],[150,40],[170,40],[180,30],[204,36],[232,66],[212,82],[202,72],[202,150],[118,150],[118,72],[108,82],[88,66]].forEach(([x,y],i)=>i?ctx.lineTo(x,y):ctx.moveTo(x,y));
+    ctx.closePath();ctx.fill();ctx.stroke();
+    iconGrid.forEach((r,ry)=>r.forEach((v,cx)=>{if(!v)return;fill(v===1?'#fff':'#555',141+cx*3.4,66+ry*3.4,3.2,3.2);}));
+  }
+  if(type==='mascot'){
+    fill('rgba(0,0,0,0.35)',112,150,96,6);
+    fill('#e4e4e4',124,98,72,52);fill('#efefef',112,40,96,64);fill('#ddd',112,28,20,20);fill('#ddd',188,28,20,20);fill('#f0c0c0',117,33,10,10);fill('#f0c0c0',193,33,10,10);
+    fill('#fff',124,58,26,26);fill('#fff',170,58,26,26);fill('#111',131,63,12,18);fill('#111',177,63,12,18);fill('#fff',134,66,5,5);fill('#fff',180,66,5,5);
+    fill('rgba(240,160,160,0.8)',118,86,18,7);fill('rgba(240,160,160,0.8)',184,86,18,7);fill('#888',148,92,24,4);
+    fill('#333',134,16,52,18);fill('#222',124,30,72,7);fill('#555',141,19,12,12);fill('#555',167,19,12,12);
+  }
+  if(type==='studio'){
+    iconGrid.forEach((r,ry)=>r.forEach((v,cx)=>{if(!v)return;fill(v===1?'#fff':'#555',104+cx*10,36+ry*10,9,9);}));
+    ctx.fillStyle='rgba(255,255,255,0.5)';ctx.font="9px 'Press Start 2P',monospace";ctx.textAlign='center';ctx.fillText('DIGITAL PXL',160,170);
+  }
+}
+
+/* ---------------- list rendering ---------------- */
+let activeCat='All', query='';
+function visible(){
+  const q=query.trim().toLowerCase();
+  return POSTS.filter(p=>(activeCat==='All'||p.cat===activeCat)&&(!q||(p.title+' '+p.excerpt+' '+p.cat).toLowerCase().includes(q)));
+}
+function render(){
+  const list=visible();
+  const fw=$('featuredWrap'),g=$('grid');fw.innerHTML='';g.innerHTML='';
+  $('empty').classList.toggle('show',!list.length);
+  list.forEach((p,i)=>{
+    if(i===0){
+      const el=document.createElement('div');el.className='featured';
+      el.innerHTML=`<div class="featured-img"><canvas width="960" height="540"></canvas></div>
+        <div class="featured-body">${activeCat==='All'&&!query?'<span class="latest">LATEST</span>':''}
+        <div class="tag">${p.cat}</div><h2 class="featured-title">${p.title}</h2>
+        <div class="meta">${fmtDate(p.date)} · ${p.read} min read</div>
+        <p class="excerpt">${p.excerpt}</p><span class="read">Read post →</span></div>`;
+      artDraw(el.querySelector('canvas'),p.art);
+      el.onclick=()=>openPost(p.id);fw.appendChild(el);
+    } else {
+      const el=document.createElement('div');el.className='post';
+      el.innerHTML=`<div class="post-img"><canvas width="640" height="360"></canvas></div>
+        <div class="post-body"><div class="tag">${p.cat}</div><div class="post-title">${p.title}</div>
+        <p class="excerpt">${p.excerpt}</p>
+        <div class="post-foot"><span class="meta">${fmtDate(p.date)} · ${p.read} min</span><span class="read">Read →</span></div></div>`;
+      artDraw(el.querySelector('canvas'),p.art);
+      el.onclick=()=>openPost(p.id);g.appendChild(el);
+    }
+  });
+}
+function buildFilters(){
+  const f=$('filters');
+  CATS.forEach(c=>{
+    const b=document.createElement('button');b.className='filter'+(c===activeCat?' active':'');b.textContent=c;
+    b.onclick=()=>{activeCat=c;f.querySelectorAll('.filter').forEach(x=>x.classList.toggle('active',x===b));render();};
+    f.appendChild(b);
+  });
+}
+$('search').addEventListener('input',e=>{query=e.target.value;render();});
+
+/* ---------------- reader ---------------- */
+let current=null;
+function openPost(id,pushHash=true){
+  const idx=POSTS.findIndex(p=>p.id===id);if(idx<0)return;
+  const p=POSTS[idx];current=idx;
+  artDraw($('aCanvas'),p.art);
+  $('aTag').textContent=p.cat;$('aTitle').textContent=p.title;
+  $('aMeta').textContent=fmtDate(p.date)+' · '+p.read+' min read';
+  const body=$('aBody');body.innerHTML='';
+  p.body.forEach(b=>{
+    if(b.h){const e=document.createElement('h3');e.textContent=b.h;body.appendChild(e);}
+    else if(b.p){const e=document.createElement('p');e.textContent=b.p;body.appendChild(e);}
+    else if(b.ul){const u=document.createElement('ul');b.ul.forEach(t=>{const li=document.createElement('li');li.textContent=t;u.appendChild(li);});body.appendChild(u);}
+  });
+  $('prev').disabled=idx===0;$('next').disabled=idx===POSTS.length-1;
+  $('scrim').classList.add('open');$('scrim').setAttribute('aria-hidden','false');
+  document.body.classList.add('lock');$('scrim').scrollTop=0;
+  if(pushHash)history.replaceState(null,'','#'+id);
+}
+function closePost(){
+  $('scrim').classList.remove('open');$('scrim').setAttribute('aria-hidden','true');
+  document.body.classList.remove('lock');current=null;
+  history.replaceState(null,'',location.pathname+location.search);
+}
+$('close').onclick=closePost;
+$('scrim').addEventListener('click',e=>{if(e.target===$('scrim'))closePost();});
+$('prev').onclick=()=>{if(current>0)openPost(POSTS[current-1].id);};
+$('next').onclick=()=>{if(current<POSTS.length-1)openPost(POSTS[current+1].id);};
+$('copy').onclick=()=>{
+  const url=location.origin&&location.origin!=='null'?location.origin+location.pathname+'#'+POSTS[current].id:location.href;
+  const done=()=>{$('copy').textContent='Copied!';setTimeout(()=>$('copy').textContent='Copy link',1400);};
+  if(navigator.clipboard)navigator.clipboard.writeText(url).then(done,done);else done();
+};
+document.addEventListener('keydown',e=>{
+  if(current===null)return;
+  if(e.key==='Escape')closePost();
+  if(e.key==='ArrowLeft'&&current>0)openPost(POSTS[current-1].id);
+  if(e.key==='ArrowRight'&&current<POSTS.length-1)openPost(POSTS[current+1].id);
+});
+window.addEventListener('hashchange',()=>{const id=location.hash.slice(1);if(id&&POSTS.some(p=>p.id===id))openPost(id,false);});
+
+/* ---------------- boot ---------------- */
+buildFilters();render();
+if(document.fonts&&document.fonts.ready)document.fonts.ready.then(render);
+if(location.hash){const id=location.hash.slice(1);if(POSTS.some(p=>p.id===id))openPost(id,false);}
+</script>
+</body>
+</html>
